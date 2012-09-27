@@ -41,7 +41,7 @@ private
     temp_latex.puts('\usepackage{color}')
     temp_latex.puts('\usepackage[active,displaymath,textmath,graphics]{preview}')
     temp_latex.puts('\begin{document}')
-    temp_latex.puts @latex.source
+    temp_latex.puts @latex.source.gsub('\\\\','\\')
     temp_latex.puts '\end{document}'
     temp_latex.flush
     temp_latex.close
