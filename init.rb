@@ -1,8 +1,8 @@
 require 'redmine'
 
-RAILS_DEFAULT_LOGGER.info 'Starting wiki_latex_plugin for Redmine'
+Rails.logger.info 'Starting wiki_latex for Redmine'
 
-Redmine::Plugin.register :wiki_latex_plugin do
+Redmine::Plugin.register :wiki_latex do
   name 'Latex Wiki-macro Plugin'
   author 'Nils Israel'
   description 'Render latex images'
