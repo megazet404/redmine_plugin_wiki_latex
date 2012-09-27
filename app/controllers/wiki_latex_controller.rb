@@ -8,11 +8,15 @@ class WikiLatexController < ApplicationController
     else
 	image_file = File.join([Rails.root, 'public', 'plugin_assets', 'wiki_latex', 'images', @name+".png"])
     end
+
     if (!File.exists?(image_file))
     	render_image
     end
     if (File.exists?(image_file))
-      render :file => image_file, :layout => false, :content_type => 'image/png'
+      #render :file => image_file, :layout => false, :content_type => 'image/png'
+      f = open(image_file, "rb") { |io| io.read }
+      send_data f, :type => 'image/png',:disposition => 'inline'
+
     else
     	render_404
     end
