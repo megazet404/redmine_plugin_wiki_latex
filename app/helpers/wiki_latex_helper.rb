@@ -25,14 +25,14 @@ module WikiLatexHelper
 
 		def render()
 		  if @latex
-		    @view.controller.render_image_tag(@latex.image_id, @latex.source)
+		    @view.controller.render_image_tag(@latex.image_id, @latex.source).html_safe
 		  else
 		    @view.controller.render_image_tag("error", "error")
 		  end
 		end
 		def render_block(wiki_name)
 		  if @latex
-		    @view.controller.render_image_block(@latex.image_id, @latex.source, wiki_name)
+		    @view.controller.render_image_block(@latex.image_id, @latex.source, wiki_name).html_safe
 		  else
 		    @view.controller.render_image_block("error", "error", wiki_name)
 		  end
