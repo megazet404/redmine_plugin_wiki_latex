@@ -25,3 +25,14 @@ Requieres folowing debian packages
 	* preview-latex-style
 
 Modified version to work with redmine 2.1
+
+
+INSTALLATION
+
+1. Name the folder `wiki_latex` not `wiki_latex_plugin` and place it in the /plugins directory
+2. Create the database tables using `rake redmine:plugins:migrate RAILS_ENV=production`
+3. Restart redmine
+4. The plugin should appear in the administartion panel
+
+For more insturctions: http://www.redmine.org/projects/redmine/wiki/Plugins
+
