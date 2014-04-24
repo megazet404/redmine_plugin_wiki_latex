@@ -16,7 +16,8 @@ Latex Plugin
 
 Don't use curly braces. '
 EOF
-		macro :latex, {:parse_args => false} do |wiki_content_obj, args|
+		macro :latex, {:parse_args => false} do |wiki_content_obj, args, text|
+			args = text if text
 			m = WikiLatexHelper::Macro.new(self, args.to_s)
 			m.render
 		end
