@@ -1,1 +1,1 @@
-match 'latex/:image_id.png' => 'wiki_latex#image'
+match 'latex/:image_id.png', to: 'wiki_latex#image', via: [:get,:post]
