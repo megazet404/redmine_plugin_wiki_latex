@@ -29,7 +29,7 @@ Requieres folowing debian packages
 	* texlive-recomended
 	* preview-latex-style
 
-Modified version to work with redmine 2.1
+Modified version to work with redmine 3.x
 
 
 INSTALLATION
@@ -40,4 +40,14 @@ INSTALLATION
 4. The plugin should appear in the administartion panel
 
 For more insturctions: http://www.redmine.org/projects/redmine/wiki/Plugins
+
+USAGE:
+1. Latex can be inserted into a Wiki via:
+<pre>
+{{latex($a=x_2$}}
+</pre>
+2. Preambles can be specified if necessary with:
+<pre>
+{{latex(\usepackage{tikz}|||||\begin{tikzpicture}\draw [red] (0,0) rectangle (1,1);\end{tikzpicture}}}
+</pre>
 
