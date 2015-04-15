@@ -4,9 +4,9 @@ Rails.logger.info 'Starting wiki_latex for Redmine'
 
 Redmine::Plugin.register :wiki_latex do
   name 'Latex Wiki-macro Plugin'
-  author 'Nils Israel'
+  author 'Nils Israel & Christopher Wilson'
   description 'Render latex images'
-  version '0.0.3'
+  version '0.1.0'
 
 	Redmine::WikiFormatting::Macros.register do
 

@@ -33,18 +33,11 @@ private
     end
     basefilename = File.join([dir,@name])
     temp_latex = File.open(basefilename+".tex",'w')
-    temp_latex.puts('\documentclass[10pt]{article}')
-    temp_latex.puts('% add additional packages here')
-    temp_latex.puts('\usepackage{amsmath}')
-    temp_latex.puts('\usepackage{amsfonts}')
-    temp_latex.puts('\usepackage{amssymb}')
-    temp_latex.puts('\usepackage{color}')
-    temp_latex.puts('\usepackage{tikz}')
-    temp_latex.puts('\usepackage{pgfplots}')
-    temp_latex.puts('\usepackage[active,displaymath,textmath,graphics,tightpage]{preview}')
-    temp_latex.puts('\begin{document}')
+    temp_latex.puts('\input{../../plugins/wiki_latex/assets/latex/header.tex}')
+    temp_latex.puts @latex.preamble.gsub('\\\\','\\')
+    temp_latex.puts('\input{../../plugins/wiki_latex/assets/latex/header2.tex}')
     temp_latex.puts @latex.source.gsub('\\\\','\\')
-    temp_latex.puts '\end{document}'
+    temp_latex.puts('\input{../../plugins/wiki_latex/assets/latex/footer.tex}')
     temp_latex.flush
     temp_latex.close
 
@@ -52,8 +45,8 @@ private
     fork_exec(dir, "/usr/bin/pdftops -eps "+@name+".pdf")
     fork_exec(dir, "/usr/bin/convert -density 100 "+@name+".eps "+@name+".png")
     ['tex','pdf','log','aux','eps'].each do |ext|
-	if File.exists?(basefilename+"."+ext)
-    	    File.unlink(basefilename+"."+ext)
+    if File.exists?(basefilename+"."+ext)
+        File.unlink(basefilename+"."+ext)
 	end
     end
   end
