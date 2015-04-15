@@ -15,6 +15,7 @@ module WikiLatexHelper
 		  @view.controller.extend(WikiLatexHelper)
 			source.gsub!(/<br \/>/,"")
 			source.gsub!(/<\/?p>/,"")
+			source.gsub!(/<\/?div>/,"")
 			name = Digest::SHA256.hexdigest(source)
 			if !WikiLatex.find_by_image_id(name)
 				@latex = WikiLatex.new(:source => source, :image_id => name)
