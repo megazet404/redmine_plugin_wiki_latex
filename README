@@ -1,6 +1,11 @@
 Redmine Wiki Latex-macro plugin will allow Redmines wiki to render
 image from latex code.
  
+UPDATED by Christopher Wilson to work in Redmine 3.0.x.
+Based on code: 
+Updated by Paul Morelle (https://github.com/madprog)
+Updated by Herman Fries (https://github.com/baracoder)
+Original Code: 
 Copyright (C) 2009 Nils Israel <info@nils-israel.net>
 Based on wiki_graphviz_plugin by tckz<at.tckz@gmail.com>
  
