@@ -1,4 +1,7 @@
-<img class='latexinline' src='<%= url_for(:controller => 'wiki_latex', :action => 'image', :image_id => name) %>' alt='<%= source %>' />
+<img class='latexinline' src='<%= url_for(:controller => 'wiki_latex', :action => 'imagesvg', :image_id => name) %>' onerror="this.src='<%= url_for(:controller => 'wiki_latex', :action => 'image', :image_id => name) %>'" alt='<%= source %>' />
+<% if false %>
+<img class='latexinline' src='<%= url_for(:controller => 'wiki_latex', :action => 'imagesvgz', :image_id => name) %>' onerror="this.src='<%= url_for(:controller => 'wiki_latex', :action => 'image', :image_id => name) %>'" alt='<%= source %>' /> 
+<% end %>
 <% content_for :header_tags do %>
    <%= stylesheet_link_tag "wiki_latex.css", :plugin => "wiki_latex", :media => :all %>
 <% end %>

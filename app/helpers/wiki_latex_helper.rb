@@ -9,6 +9,15 @@ module WikiLatexHelper
   def render_image_block(image_name, preamble, source, wiki_name)
     render_to_string :template => 'wiki_latex/macro_block', :layout => false, :locals => {:name => image_name, :source => source, :preamble => preamble, :wiki_name => wiki_name}
   end
+
+  def render_pdf(image_name)
+    dir = File.join([Rails.root,'tmp','wiki_latex'])
+    pdf_file = File.join([dir,image_name+'pdf'])
+    if File.exists?(pdf_file)
+      render_to_string open(pdf_file,'rb') {|io| io.read }
+    end
+  end
+
 	class Macro
 		def initialize(view, source)
 		  @view = view
