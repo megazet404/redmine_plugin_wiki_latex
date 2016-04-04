@@ -4,8 +4,7 @@ class WikiLatexController < ApplicationController
     @latex = WikiLatex.find_by_image_id(params[:image_id])
     @name = params[:image_id]
     if @name != "error"
-	#image_file = File.join([Rails.root, 'tmp', 'wiki_latex', @name+".png"])
-	image_file = File.join([Rails.root, 'tmp', 'wiki_latex', @name+".svg"])
+	image_file = File.join([Rails.root, 'tmp', 'wiki_latex', @name+".png"])
     else
 	image_file = File.join([Rails.root, 'public', 'plugin_assets', 'wiki_latex', 'images', @name+".png"])
     end
@@ -16,8 +15,7 @@ class WikiLatexController < ApplicationController
     if (File.exists?(image_file))
       #render :file => image_file, :layout => false, :content_type => 'image/png'
       f = open(image_file, "rb") { |io| io.read }
-      #send_data f, :type => 'image/png',:disposition => 'inline'
-      send_data f, :type => 'image/svg+xml',:disposition => 'inline'
+      send_data f, :type => 'image/png',:disposition => 'inline'
 
     else
     	render_404
@@ -134,7 +132,7 @@ private
     fork_exec(dir, "/bin/gzip -c "+@name+".svg > "+@name+".svgz")
     if File.exists?(basefilename+".png")
       #['tex','pdf','log','aux','eps'].each do |ext|
-      ['tex','log','aux','pdf'].each do |ext|
+      ['tex','log','aux'].each do |ext|
         if File.exists?(basefilename+"."+ext)
           File.unlink(basefilename+"."+ext)
         end
