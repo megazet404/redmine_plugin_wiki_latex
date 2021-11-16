@@ -43,7 +43,7 @@ private
     temp_latex.flush
     temp_latex.close
 
-    system("cd "+dir+" && "+PATH+"pdflatex --interaction=nonstopmode "+@name+".tex 2> /dev/null > /dev/null")
+    system("cd "+dir+" && "+PATH+"pdflatex --interaction=nonstopmode "+@name+".tex")
     system("cd "+dir+" && "+PATH+"pdftops -eps "+@name+".pdf")
     system("cd "+dir+" && "+PATH+"convert -density 100 "+@name+".eps "+@name+".png")
     ['tex','pdf','log','aux','eps'].each do |ext|
