@@ -1,4 +1,4 @@
-class WikiLatexAddPreamble < ActiveRecord::Migration
+class WikiLatexAddPreamble < ActiveRecord::Migration[4.2]
 
   def self.up
     add_column :wiki_latexes, :preamble, :text, after: :source, :null => false, :default => ""

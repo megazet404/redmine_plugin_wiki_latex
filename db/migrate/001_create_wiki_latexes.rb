@@ -1,4 +1,4 @@
-class CreateWikiLatexes < ActiveRecord::Migration
+class CreateWikiLatexes < ActiveRecord::Migration[4.2]
   def self.up
     create_table :wiki_latexes do |t|
       t.column :hash, :string, :limit => 64, :null => false

@@ -1,4 +1,4 @@
-class RenameHash < ActiveRecord::Migration
+class RenameHash < ActiveRecord::Migration[4.2]
   def self.up
     rename_column :wiki_latexes, :hash, :image_id
     add_index :wiki_latexes, :image_id, :name => :wiki_latexes_image_id
