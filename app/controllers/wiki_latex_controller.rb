@@ -34,12 +34,12 @@ private
     rescue
     end
     basefilename = File.join([dir,@name])
-    temp_latex = File.open(basefilename+".tex",'w')
-    temp_latex.puts('\input{../../plugins/wiki_latex/assets/latex/header.tex}')
-    temp_latex.puts @latex.preamble.gsub('\\\\','\\')
-    temp_latex.puts('\input{../../plugins/wiki_latex/assets/latex/header2.tex}')
-    temp_latex.puts @latex.source.gsub('\\\\','\\')
-    temp_latex.puts('\input{../../plugins/wiki_latex/assets/latex/footer.tex}')
+    temp_latex = File.open(basefilename+".tex",'wb')
+    temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
+    temp_latex.print(@latex.preamble.gsub('\\\\','\\').gsub(/\r\n?/, "\n"), "\n")
+    temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
+    temp_latex.print(@latex.source.gsub('\\\\','\\').gsub(/\r\n?/, "\n"), "\n")
+    temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
     temp_latex.flush
     temp_latex.close
 
