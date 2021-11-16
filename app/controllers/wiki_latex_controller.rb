@@ -44,12 +44,12 @@ private
     temp_latex.close
 
     if WikiLatexConfig::Png::CONVERT_VIA_PDF
-      system("cd "+dir+" && "+PATH+"pdflatex --interaction=nonstopmode "+@name+".tex")
-      system("cd "+dir+" && "+PATH+"pdftops -eps "+@name+".pdf")
-      system("cd "+dir+" && "+PATH+"convert -density 100 "+@name+".eps "+@name+".png")
+      system("cd #{dir} && #{PATH}pdflatex --interaction=nonstopmode #{@name}.tex")
+      system("cd #{dir} && #{PATH}pdftops -eps #{@name}.pdf")
+      system("cd #{dir} && #{PATH}convert -density 100 #{@name}.eps #{@name}.png")
     else
-      system("cd "+dir+" && "+PATH+"latex --interaction=nonstopmode "+@name+".tex")
-      system("cd "+dir+" && "+PATH+"dvipng -bg Transparent "+@name+".dvi -o "+@name+".png")
+      system("cd #{dir} && #{PATH}latex --interaction=nonstopmode #{@name}.tex")
+      system("cd #{dir} && #{PATH}dvipng -bg Transparent #{@name}.dvi -o #{@name}.png")
     end
     ['tex','pdf','eps','dvi', 'log','aux'].each do |ext|
     if File.exists?(basefilename+"."+ext)
