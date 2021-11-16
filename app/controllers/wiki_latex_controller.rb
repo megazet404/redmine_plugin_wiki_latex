@@ -41,27 +41,13 @@ private
     temp_latex.flush
     temp_latex.close
 
-    fork_exec(dir, "/usr/bin/pdflatex --interaction=nonstopmode "+@name+".tex 2> /dev/null > /dev/null")
-    fork_exec(dir, "/usr/bin/pdftops -eps "+@name+".pdf")
-    fork_exec(dir, "/usr/bin/convert -density 100 "+@name+".eps "+@name+".png")
+    system("cd "+dir+" && pdflatex --interaction=nonstopmode "+@name+".tex 2> /dev/null > /dev/null")
+    system("cd "+dir+" && pdftops -eps "+@name+".pdf")
+    system("cd "+dir+" && convert -density 100 "+@name+".eps "+@name+".png")
     ['tex','pdf','log','aux','eps'].each do |ext|
     if File.exists?(basefilename+"."+ext)
         File.unlink(basefilename+"."+ext)
 	end
-    end
-  end
-
-  def fork_exec(dir, cmd)
-    pid = fork{
-      Dir.chdir(dir)
-      exec(cmd)
-      exit! ec
-    }
-    ec = nil
-    begin
-      Process.waitpid pid
-      ec = $?.exitstatus
-    rescue
     end
   end
 
