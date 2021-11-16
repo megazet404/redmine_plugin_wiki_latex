@@ -1,5 +1,7 @@
 class WikiLatexController < ApplicationController
 
+  PATH = (WikiLatexConfig::TEX_TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TEX_TOOLS_PATH, ""))
+
   def image
     @latex = WikiLatex.find_by_image_id(params[:image_id])
     @name = params[:image_id]
@@ -41,9 +43,9 @@ private
     temp_latex.flush
     temp_latex.close
 
-    system("cd "+dir+" && pdflatex --interaction=nonstopmode "+@name+".tex 2> /dev/null > /dev/null")
-    system("cd "+dir+" && pdftops -eps "+@name+".pdf")
-    system("cd "+dir+" && convert -density 100 "+@name+".eps "+@name+".png")
+    system("cd "+dir+" && "+PATH+"pdflatex --interaction=nonstopmode "+@name+".tex 2> /dev/null > /dev/null")
+    system("cd "+dir+" && "+PATH+"pdftops -eps "+@name+".pdf")
+    system("cd "+dir+" && "+PATH+"convert -density 100 "+@name+".eps "+@name+".png")
     ['tex','pdf','log','aux','eps'].each do |ext|
     if File.exists?(basefilename+"."+ext)
         File.unlink(basefilename+"."+ext)

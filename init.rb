@@ -1,5 +1,13 @@
 require 'redmine'
 
+module WikiLatexConfig
+
+  # The path to TeX tools like 'pdflatex' and 'dvipng'. E.g. '/usr/bin/'.
+  # If it is empty, the tools are searched in the PATH environment variable.
+  TEX_TOOLS_PATH       = ""
+
+end
+
 Rails.logger.info 'Starting wiki_latex for Redmine'
 
 Redmine::Plugin.register :wiki_latex do
