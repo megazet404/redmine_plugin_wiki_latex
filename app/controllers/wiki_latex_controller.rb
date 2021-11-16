@@ -1,5 +1,7 @@
 class WikiLatexController < ApplicationController
 
+  PATH = (WikiLatexConfig::TEX_TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TEX_TOOLS_PATH, ""))
+
   def image
     @latex = WikiLatex.find_by_image_id(params[:image_id])
     @name = params[:image_id]
@@ -32,36 +34,27 @@ private
     rescue
     end
     basefilename = File.join([dir,@name])
-    temp_latex = File.open(basefilename+".tex",'w')
-    temp_latex.puts('\input{../../plugins/wiki_latex/assets/latex/header.tex}')
-    temp_latex.puts @latex.preamble.gsub('\\\\','\\')
-    temp_latex.puts('\input{../../plugins/wiki_latex/assets/latex/header2.tex}')
-    temp_latex.puts @latex.source.gsub('\\\\','\\')
-    temp_latex.puts('\input{../../plugins/wiki_latex/assets/latex/footer.tex}')
+    temp_latex = File.open(basefilename+".tex",'wb')
+    temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
+    temp_latex.print(@latex.preamble.gsub('\\\\','\\').gsub(/\r\n?/, "\n"), "\n")
+    temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
+    temp_latex.print(@latex.source.gsub('\\\\','\\').gsub(/\r\n?/, "\n"), "\n")
+    temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
     temp_latex.flush
     temp_latex.close
 
-    fork_exec(dir, "/usr/bin/pdflatex --interaction=nonstopmode "+@name+".tex 2> /dev/null > /dev/null")
-    fork_exec(dir, "/usr/bin/pdftops -eps "+@name+".pdf")
-    fork_exec(dir, "/usr/bin/convert -density 100 "+@name+".eps "+@name+".png")
-    ['tex','pdf','log','aux','eps'].each do |ext|
+    if WikiLatexConfig::Png::CONVERT_VIA_PDF
+      system("cd "+dir+" && "+PATH+"pdflatex --interaction=nonstopmode "+@name+".tex")
+      system("cd "+dir+" && "+PATH+"pdftops -eps "+@name+".pdf")
+      system("cd "+dir+" && "+PATH+"convert -density 100 "+@name+".eps "+@name+".png")
+    else
+      system("cd "+dir+" && "+PATH+"latex --interaction=nonstopmode "+@name+".tex")
+      system("cd "+dir+" && "+PATH+"dvipng -bg Transparent "+@name+".dvi -o "+@name+".png")
+    end
+    ['tex','pdf','eps','dvi', 'log','aux'].each do |ext|
     if File.exists?(basefilename+"."+ext)
         File.unlink(basefilename+"."+ext)
 	end
-    end
-  end
-
-  def fork_exec(dir, cmd)
-    pid = fork{
-      Dir.chdir(dir)
-      exec(cmd)
-      exit! ec
-    }
-    ec = nil
-    begin
-      Process.waitpid pid
-      ec = $?.exitstatus
-    rescue
     end
   end
 
