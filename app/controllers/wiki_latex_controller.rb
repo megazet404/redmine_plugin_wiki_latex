@@ -49,7 +49,7 @@ private
       system("cd #{dir} && #{PATH}convert -density 100 #{@name}.eps #{@name}.png")
     else
       system("cd #{dir} && #{PATH}latex --interaction=nonstopmode #{@name}.tex")
-      system("cd #{dir} && #{PATH}dvipng -bg Transparent #{@name}.dvi -o #{@name}.png")
+      system("cd #{dir} && #{PATH}dvipng -T tight -bg Transparent #{@name}.dvi -o #{@name}.png")
     end
     ['tex','pdf','eps','dvi', 'log','aux'].each do |ext|
     if File.exists?(basefilename+"."+ext)
