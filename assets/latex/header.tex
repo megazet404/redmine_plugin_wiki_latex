@@ -1,4 +1,9 @@
+% We use documentclass 'standalone' in 'preview' mode to crop the image to its content.
+% 'varwidth' is for cropping not only vertically but horizontally as well.
+% '10000pt' is for widening PDF page to fit long formulas. It is not required for PNG, though.
+% 'border' is needed because the LaTeX content in the image may be clipped without it.
 \documentclass[preview,varwidth=10000pt,border=0.5]{standalone}
+
 % add additional packages here
 \usepackage{amsmath}
 \usepackage{amsfonts}
