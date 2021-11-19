@@ -21,21 +21,17 @@ module WikiLatexHelper
       @view = view
       @view.controller.extend(WikiLatexHelper)
       preamble = ''
-      unless source.nil? || source.empty?
-        if source.include? '|||||'
-          ary = source.split('|||||')
-          source = ary[1]
-          preamble = ary[0]
-        end
-        source.gsub!(/<br \/>/,"")
-        source.gsub!(/<\/?p>/,"")
-        source.gsub!(/<\/?div>/,"")
+      if source.include? '|||||'
+        ary = source.split('|||||')
+        source = ary[1]
+        preamble = ary[0]
       end
-      unless preamble.nil? || preamble.empty?
-        preamble.gsub!(/<br \/>/,"")
-        preamble.gsub!(/<\/?p>/,"")
-        preamble.gsub!(/<\/?div>/,"")
-      end
+      source.gsub!(/<br \/>/,"")
+      source.gsub!(/<\/?p>/,"")
+      source.gsub!(/<\/?div>/,"")
+      preamble.gsub!(/<br \/>/,"")
+      preamble.gsub!(/<\/?p>/,"")
+      preamble.gsub!(/<\/?div>/,"")
       name = Digest::SHA256.hexdigest(preamble+source)
       if !WikiLatex.find_by_image_id(name)
         @latex = WikiLatex.new(:source => source, :image_id => name, :preamble => preamble)
