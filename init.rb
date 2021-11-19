@@ -6,6 +6,11 @@ module WikiLatexConfig
   # If it is empty, the tools are searched in the PATH environment variable.
   TOOLS_PATH           = ""
 
+  # If this option is enable, the tmp/wiki_latex/ directory is removed at Redmine
+  # startup. The directory contains LaTeX sources and cached LaTeX images. They
+  # are regenerated when the pages with the LaTeX macros are requested.
+  CLEAN_FILES_ON_START = false
+
   # PNG options.
   module Png
 
@@ -60,4 +65,8 @@ EOF
     end
   end
 
+end
+
+if WikiLatexConfig::CLEAN_FILES_ON_START
+  WikiLatexHelper::rm_rf(WikiLatexHelper::DIR)
 end
