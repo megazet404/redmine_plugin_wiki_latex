@@ -21,9 +21,14 @@ module WikiLatexHelper
       @view = view
       @view.controller.extend(WikiLatexHelper)
 
+      # Get rid of nasty Windows line endings.
+      full_source.gsub!(/\r\n?/, "\n")
+
       full_source.gsub!(/<br \/>/,"")
       full_source.gsub!(/<\/?p>/,"")
       full_source.gsub!(/<\/?div>/,"")
+
+      full_source.gsub!('\\\\','\\')
 
       if full_source.include?  ('|||||')
         ary = full_source.split('|||||')

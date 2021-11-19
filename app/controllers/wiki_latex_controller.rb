@@ -26,9 +26,9 @@ class WikiLatexController < ApplicationController
       end
       temp_latex = File.open(@basefilepath+".tex",'wb')
       temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
-      temp_latex.print(@latex.preamble.gsub('\\\\','\\').gsub(/\r\n?/, "\n"), "\n")
+      temp_latex.print(@latex.preamble, "\n")
       temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
-      temp_latex.print(@latex.source.gsub('\\\\','\\').gsub(/\r\n?/, "\n"), "\n")
+      temp_latex.print(@latex.source, "\n")
       temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
       temp_latex.flush
       temp_latex.close
