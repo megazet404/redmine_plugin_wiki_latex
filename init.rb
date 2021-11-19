@@ -11,6 +11,15 @@ module WikiLatexConfig
   # are regenerated when the pages with the LaTeX macros are requested.
   CLEAN_FILES_ON_START = false
 
+  # If this option is enabled, then all 'latex'/'pdflatex' output messages are
+  # suppressed.
+  LATEX_NO_OUTPUT      = false
+
+  # If this option is enabled, the '--quiet' option is added to 'latex'/'pdflatex'.
+  # Not all TeX distributions support it. Adding '--quiet' suppress all output,
+  # except errors.
+  LATEX_QUIET          = false
+
   # PNG options.
   module Png
 

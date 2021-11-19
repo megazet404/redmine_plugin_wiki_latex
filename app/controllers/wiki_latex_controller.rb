@@ -31,15 +31,47 @@ class WikiLatexController < ApplicationController
       end
     end
 
+    def run_latex(tool)
+      make_tex
+
+      # Compose command line options.
+      opts = ""
+      begin
+        if WikiLatexConfig::LATEX_NO_OUTPUT
+          # Do not request user input, do default actions on errors.
+          # Do not output any messages to log.
+          opts += " -interaction=batchmode"
+        else
+          # The same as batchmode, but messages are outputted.
+          opts += " -interaction=nonstopmode"
+        end
+
+        if WikiLatexConfig::LATEX_QUIET
+          # Print only errors to logs.
+          opts += " -quiet"
+        end
+      end
+
+      system("cd #{@dir_q} && #{PATH_Q}#{tool} #{opts} #{@name}.tex")
+    end
+
+    def make_pdf
+      run_latex("pdflatex")
+    end
+
+    def make_dvi
+      run_latex("latex")
+    end
+
     def make_png
       make_tex
 
       if WikiLatexConfig::Png::GRAPHICS_SUPPORT
-        system("cd #{@dir_q} && #{PATH_Q}pdflatex --interaction=nonstopmode #{@name}.tex")
+        make_pdf
         system("cd #{@dir_q} && #{PATH_Q}pdftops -eps #{@name}.pdf")
         system("cd #{@dir_q} && #{PATH_Q}convert -density 100 #{@name}.eps #{@name}.png")
       else
-        system("cd #{@dir_q} && #{PATH_Q}latex --interaction=nonstopmode #{@name}.tex")
+        make_dvi
         system("cd #{@dir_q} && #{PATH_Q}dvipng -T tight -bg Transparent #{@name}.dvi -o #{@name}.png")
       end
       ['tex','pdf','eps','dvi', 'log','aux'].each do |ext|
