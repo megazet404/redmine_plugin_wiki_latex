@@ -17,6 +17,7 @@ class WikiLatexController < ApplicationController
       @latex = WikiLatex.find_by_image_id(@name)
     end
 
+  private
     PATH_Q = quote(WikiLatexConfig::TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TOOLS_PATH, ""))
 
     def make_tex
@@ -63,6 +64,7 @@ class WikiLatexController < ApplicationController
       run_latex("latex")
     end
 
+  public
     def make_png
       make_tex
 
