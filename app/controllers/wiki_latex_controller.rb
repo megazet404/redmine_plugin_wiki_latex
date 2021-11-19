@@ -4,8 +4,6 @@ class WikiLatexController < ApplicationController
       LatexProcessor.new(basefilepath).make_png()
     end
 
-    PATH = (WikiLatexConfig::TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TOOLS_PATH, ""))
-
     def initialize(basefilepath)
       @basefilepath = basefilepath
       @dir          = File.dirname (@basefilepath)
@@ -13,6 +11,8 @@ class WikiLatexController < ApplicationController
 
       @latex = WikiLatex.find_by_image_id(@name)
     end
+
+    PATH = (WikiLatexConfig::TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TOOLS_PATH, ""))
 
     def make_png()
       begin
