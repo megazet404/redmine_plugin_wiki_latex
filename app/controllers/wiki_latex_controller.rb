@@ -72,7 +72,7 @@ class WikiLatexController < ApplicationController
         system("cd #{@dir_q} && #{PATH_Q}convert -density 100 #{@name}.eps #{@name}.png")
       else
         make_dvi
-        system("cd #{@dir_q} && #{PATH_Q}dvipng -T tight -bg Transparent #{@name}.dvi -o #{@name}.png")
+        system("cd #{@dir_q} && #{PATH_Q}dvipng -T tight -bg Transparent #{@name}.dvi -q -o #{@name}.png")
       end
       ['tex','pdf','eps','dvi', 'log','aux'].each do |ext|
         if File.exists?(@basefilepath+"."+ext)
