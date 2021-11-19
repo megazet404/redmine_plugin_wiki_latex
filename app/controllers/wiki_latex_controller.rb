@@ -19,7 +19,7 @@ class WikiLatexController < ApplicationController
 
     PATH_Q = quote(WikiLatexConfig::TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TOOLS_PATH, ""))
 
-    def make_png()
+    def make_png
       begin
         Dir.mkdir(@dir)
       rescue
