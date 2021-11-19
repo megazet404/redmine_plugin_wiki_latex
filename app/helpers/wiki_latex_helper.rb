@@ -47,11 +47,11 @@ module WikiLatexHelper
     end
 
     def render()
-      render_template(@view, "macro_inline", {:name => @latex.image_id, :source => @latex.source, :preamble => @latex.preamble}).html_safe
+      render_template(@view, "macro_inline", {:name => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source}).html_safe
     end
 
     def render_block(wiki_name)
-      render_template(@view, "macro_block", {:name => @latex.image_id, :source => @latex.source, :preamble => @latex.preamble, :wiki_name => wiki_name}).html_safe
+      render_template(@view, "macro_block", {:name => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source, :wiki_name => wiki_name}).html_safe
     end
   end
 end
