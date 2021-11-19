@@ -20,7 +20,7 @@ module WikiLatexHelper
     def initialize(view, source)
       @view = view
       @view.controller.extend(WikiLatexHelper)
-      preamble = ' '
+      preamble = ''
       unless source.nil? || source.empty?
         if source.include? '|||||'
           ary = source.split('|||||')
