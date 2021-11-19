@@ -4,15 +4,20 @@ class WikiLatexController < ApplicationController
       LatexProcessor.new(basefilepath).make_png()
     end
 
+    def self.quote(str)
+      (str == "" ? "" : '"' + str + '"')
+    end
+
     def initialize(basefilepath)
       @basefilepath = basefilepath
       @dir          = File.dirname (@basefilepath)
       @name         = File.basename(@basefilepath)
+      @dir_q        = LatexProcessor.quote(@dir)
 
       @latex = WikiLatex.find_by_image_id(@name)
     end
 
-    PATH = (WikiLatexConfig::TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TOOLS_PATH, ""))
+    PATH_Q = quote(WikiLatexConfig::TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TOOLS_PATH, ""))
 
     def make_png()
       begin
@@ -29,12 +34,12 @@ class WikiLatexController < ApplicationController
       temp_latex.close
 
       if WikiLatexConfig::Png::GRAPHICS_SUPPORT
-        system("cd #{@dir} && #{PATH}pdflatex --interaction=nonstopmode #{@name}.tex")
-        system("cd #{@dir} && #{PATH}pdftops -eps #{@name}.pdf")
-        system("cd #{@dir} && #{PATH}convert -density 100 #{@name}.eps #{@name}.png")
+        system("cd #{@dir_q} && #{PATH_Q}pdflatex --interaction=nonstopmode #{@name}.tex")
+        system("cd #{@dir_q} && #{PATH_Q}pdftops -eps #{@name}.pdf")
+        system("cd #{@dir_q} && #{PATH_Q}convert -density 100 #{@name}.eps #{@name}.png")
       else
-        system("cd #{@dir} && #{PATH}latex --interaction=nonstopmode #{@name}.tex")
-        system("cd #{@dir} && #{PATH}dvipng -T tight -bg Transparent #{@name}.dvi -o #{@name}.png")
+        system("cd #{@dir_q} && #{PATH_Q}latex --interaction=nonstopmode #{@name}.tex")
+        system("cd #{@dir_q} && #{PATH_Q}dvipng -T tight -bg Transparent #{@name}.dvi -o #{@name}.png")
       end
       ['tex','pdf','eps','dvi', 'log','aux'].each do |ext|
         if File.exists?(@basefilepath+"."+ext)
