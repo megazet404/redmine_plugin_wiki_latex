@@ -53,14 +53,14 @@ module WikiLatexHelper
       if @latex
         @view.controller.render_image_tag(@latex.image_id, @latex.preamble, @latex.source).html_safe
       else
-        @view.controller.render_image_tag("error", "error")
+        @view.controller.render_image_tag("error", "error", "error")
       end
     end
     def render_block(wiki_name)
       if @latex
         @view.controller.render_image_block(@latex.image_id, @latex.preamble, @latex.source, wiki_name).html_safe
       else
-        @view.controller.render_image_block("error", "error", wiki_name)
+        @view.controller.render_image_block("error", "error", "error", wiki_name)
       end
     end
   end
