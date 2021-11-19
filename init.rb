@@ -52,7 +52,8 @@ EOF
 Include wiki page rendered with latex.
 {{latex_include(WikiName)}}
 EOF
-    macro :latex_include, {:parse_args => false} do |obj, args|
+    macro :latex_include, {:parse_args => false} do |obj, args, text|
+      raise "latex_include can't be multiline" if !text.nil?
       page = Wiki.find_page(args.to_s, :project => @project)
       raise 'Page not found' if page.nil? || !User.current.allowed_to?(:view_wiki_pages, page.wiki.project)
 
