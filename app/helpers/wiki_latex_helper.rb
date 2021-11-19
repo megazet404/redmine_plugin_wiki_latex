@@ -9,17 +9,9 @@ module WikiLatexHelper
     FileUtils.rm_r(path, force: true, secure: true)
   end
 
-  def render_image_tag(image_name, preamble, source)
-    render_to_string :template => 'wiki_latex/macro_inline', :layout => false, :locals => {:name => image_name, :source => source, :preamble => preamble}
-  end
-
-  def render_image_block(image_name, preamble, source, wiki_name)
-    render_to_string :template => 'wiki_latex/macro_block', :layout => false, :locals => {:name => image_name, :source => source, :preamble => preamble, :wiki_name => wiki_name}
-  end
   class Macro
     def initialize(view, full_source)
       @view = view
-      @view.controller.extend(WikiLatexHelper)
 
       # Get rid of nasty Windows line endings.
       full_source.gsub!(/\r\n?/, "\n")
@@ -51,10 +43,19 @@ module WikiLatexHelper
     end
 
     def render()
-      @view.controller.render_image_tag(@latex.image_id, @latex.preamble, @latex.source).html_safe
+      @view.controller.render_to_string(
+        :template => 'wiki_latex/macro_inline',
+        :layout => false,
+        :locals => {:name => @latex.image_id, :source => @latex.source, :preamble => @latex.preamble}
+      ).html_safe
     end
+
     def render_block(wiki_name)
-      @view.controller.render_image_block(@latex.image_id, @latex.preamble, @latex.source, wiki_name).html_safe
+      @view.controller.render_to_string(
+        :template => 'wiki_latex/macro_block',
+        :layout => false,
+        :locals => {:name => @latex.image_id, :source => @latex.source, :preamble => @latex.preamble, :wiki_name => wiki_name}
+      ).html_safe
     end
   end
 end
