@@ -50,7 +50,7 @@ module WikiLatexHelper
     end
 
   public
-    def render(view)
+    def render_inline(view)
       content =  ""
       content += render_header  (view)
       content += render_template(view, "macro_inline", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source})

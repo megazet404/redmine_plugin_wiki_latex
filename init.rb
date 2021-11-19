@@ -68,7 +68,7 @@ EOF
     macro :latex, {:parse_args => false} do |wiki_content_obj, args, text|
       latex_source_code = get_macro_content(args, text)
       m = WikiLatexHelper::Macro.new(latex_source_code)
-      m.render(self)
+      m.render_inline(self)
     end
 
 
