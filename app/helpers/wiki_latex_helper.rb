@@ -42,26 +42,19 @@ module WikiLatexHelper
       end
 
       name = Digest::SHA256.hexdigest(preamble+source)
-      if !WikiLatex.find_by_image_id(name)
+
+      @latex = WikiLatex.find_by_image_id(name)
+      if !@latex
         @latex = WikiLatex.new(:source => source, :image_id => name, :preamble => preamble)
         @latex.save
       end
-      @latex = WikiLatex.find_by_image_id(name)
     end
 
     def render()
-      if @latex
-        @view.controller.render_image_tag(@latex.image_id, @latex.preamble, @latex.source).html_safe
-      else
-        @view.controller.render_image_tag("error", "error", "error")
-      end
+      @view.controller.render_image_tag(@latex.image_id, @latex.preamble, @latex.source).html_safe
     end
     def render_block(wiki_name)
-      if @latex
-        @view.controller.render_image_block(@latex.image_id, @latex.preamble, @latex.source, wiki_name).html_safe
-      else
-        @view.controller.render_image_block("error", "error", "error", wiki_name)
-      end
+      @view.controller.render_image_block(@latex.image_id, @latex.preamble, @latex.source, wiki_name).html_safe
     end
   end
 end

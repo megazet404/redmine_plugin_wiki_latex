@@ -87,11 +87,7 @@ class WikiLatexController < ApplicationController
   def image
     name = params[:image_id]
     basefilepath = File.join(WikiLatexHelper::DIR, name)
-    if name != "error"
-	image_file = "#{basefilepath}.png"
-    else
-	image_file = File.join([Rails.root, 'public', 'plugin_assets', 'wiki_latex', 'images', name+".png"])
-    end
+    image_file = "#{basefilepath}.png"
 
     if (!File.exists?(image_file))
     	LatexProcessor.make_png(basefilepath)
