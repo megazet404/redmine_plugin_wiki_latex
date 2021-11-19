@@ -19,7 +19,7 @@ class WikiLatexController < ApplicationController
 
     PATH_Q = quote(WikiLatexConfig::TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TOOLS_PATH, ""))
 
-    def make_png
+    def make_tex
       begin
         Dir.mkdir(@dir)
       rescue
@@ -32,6 +32,10 @@ class WikiLatexController < ApplicationController
       temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
       temp_latex.flush
       temp_latex.close
+    end
+
+    def make_png
+      make_tex
 
       if WikiLatexConfig::Png::GRAPHICS_SUPPORT
         system("cd #{@dir_q} && #{PATH_Q}pdflatex --interaction=nonstopmode #{@name}.tex")
