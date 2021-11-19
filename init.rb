@@ -30,6 +30,12 @@ def get_macro_content(args, text)
   # Convert array to string if 'args' is array (it shouldn't be if ':parse_args => false')
   args = args.join(",") if args.kind_of?(Array)
 
+  # Check if multiline macro.
+  if !text.nil?
+    raise "no parameters are supported in multiline macro" if args != ""
+    return text
+  end
+
   # Return 'args' as the content of macro.
   return args
 end
