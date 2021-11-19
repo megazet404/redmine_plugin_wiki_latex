@@ -22,12 +22,12 @@ class WikiLatexController < ApplicationController
     def make_tex
       FileUtils.mkdir_p(@dir)
 
-      File.open(@basefilepath+".tex", 'wb') do |temp_latex|
-        temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
-        temp_latex.print(@latex.preamble, "\n")
-        temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
-        temp_latex.print(@latex.source, "\n")
-        temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
+      File.open(@basefilepath+".tex", 'wb') do |f|
+        f.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
+        f.print(@latex.preamble, "\n")
+        f.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
+        f.print(@latex.source, "\n")
+        f.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
       end
     end
 
