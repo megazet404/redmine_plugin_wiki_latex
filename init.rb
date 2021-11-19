@@ -2,18 +2,18 @@ require 'redmine'
 
 module WikiLatexConfig
 
-  # The path to TeX tools like 'pdflatex' and 'dvipng'. E.g. '/usr/bin/'.
+  # The path to LaTeX tools like 'pdflatex' and 'dvipng'. E.g. '/usr/bin/'.
   # If it is empty, the tools are searched in the PATH environment variable.
-  TEX_TOOLS_PATH       = ""
+  TOOLS_PATH           = ""
 
   # PNG options.
   module Png
 
     # If this option is enabled, TikZ graphics works in PNG, but the 'convert'
-    # tool is required which is not available on some platforms.
+    # tool of ImageMagick together with Ghostscript is required.
     # If the option is disabled, the 'convert' tool is not required, but TikZ
     # graphics doesn't work.
-    CONVERT_VIA_PDF = false
+    GRAPHICS_SUPPORT = false
 
   end
 
