@@ -20,10 +20,8 @@ class WikiLatexController < ApplicationController
     PATH_Q = quote(WikiLatexConfig::TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TOOLS_PATH, ""))
 
     def make_tex
-      begin
-        Dir.mkdir(@dir)
-      rescue
-      end
+      FileUtils.mkdir_p(@dir)
+
       temp_latex = File.open(@basefilepath+".tex",'wb')
       temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
       temp_latex.print(@latex.preamble, "\n")
