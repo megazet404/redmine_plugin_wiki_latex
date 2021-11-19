@@ -10,9 +10,7 @@ module WikiLatexHelper
   end
 
   class Macro
-    def initialize(view, full_source)
-      @view = view
-
+    def initialize(full_source)
       # Get rid of nasty Windows line endings.
       full_source.gsub!(/\r\n?/, "\n")
 
@@ -52,17 +50,17 @@ module WikiLatexHelper
     end
 
   public
-    def render()
+    def render(view)
       content =  ""
-      content += render_header  (@view)
-      content += render_template(@view, "macro_inline", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source})
+      content += render_header  (view)
+      content += render_template(view, "macro_inline", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source})
       content.html_safe
     end
 
-    def render_block(wiki_name)
+    def render_block(view, wiki_name)
       content =  ""
-      content += render_header  (@view)
-      content += render_template(@view, "macro_block", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source, :wiki_name => wiki_name})
+      content += render_header  (view)
+      content += render_template(view, "macro_block", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source, :wiki_name => wiki_name})
       content.html_safe
     end
   end

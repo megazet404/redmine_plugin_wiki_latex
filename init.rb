@@ -67,8 +67,8 @@ Don't use curly braces. '
 EOF
     macro :latex, {:parse_args => false} do |wiki_content_obj, args, text|
       latex_source_code = get_macro_content(args, text)
-      m = WikiLatexHelper::Macro.new(self, latex_source_code)
-      m.render
+      m = WikiLatexHelper::Macro.new(latex_source_code)
+      m.render(self)
     end
 
 
@@ -86,9 +86,9 @@ EOF
       @included_wiki_pages ||= []
       raise 'Circular inclusion detected' if @included_wiki_pages.include?(page.title)
       @included_wiki_pages << page.title
-      m = WikiLatexHelper::Macro.new(self, page.content.text)
+      m = WikiLatexHelper::Macro.new(page.content.text)
       @included_wiki_pages.pop
-      m.render_block(page_title)
+      m.render_block(self, page_title)
     end
   end
 
