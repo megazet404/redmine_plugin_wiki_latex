@@ -46,12 +46,22 @@ module WikiLatexHelper
       view.controller.render_to_string(:template => "wiki_latex/#{template}", :layout => false, :locals => locals)
     end
 
+    def render_header(view)
+      render_template(view, "header", {:view => view})
+    end
+
     def render()
-      render_template(@view, "macro_inline", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source}).html_safe
+      content =  ""
+      content += render_header  (@view)
+      content += render_template(@view, "macro_inline", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source})
+      content.html_safe
     end
 
     def render_block(wiki_name)
-      render_template(@view, "macro_block", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source, :wiki_name => wiki_name}).html_safe
+      content =  ""
+      content += render_header  (@view)
+      content += render_template(@view, "macro_block", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source, :wiki_name => wiki_name})
+      content.html_safe
     end
   end
 end
