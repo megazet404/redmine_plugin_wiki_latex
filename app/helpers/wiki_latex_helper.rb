@@ -17,25 +17,23 @@ module WikiLatexHelper
     render_to_string :template => 'wiki_latex/macro_block', :layout => false, :locals => {:name => image_name, :source => source, :preamble => preamble, :wiki_name => wiki_name}
   end
   class Macro
-    def initialize(view, source)
+    def initialize(view, full_source)
       @view = view
       @view.controller.extend(WikiLatexHelper)
-      preamble = ' '
-      unless source.nil? || source.empty?
-        if source.include? '|||||'
-          ary = source.split('|||||')
-          source = ary[1]
-          preamble = ary[0]
-        end
-        source.gsub!(/<br \/>/,"")
-        source.gsub!(/<\/?p>/,"")
-        source.gsub!(/<\/?div>/,"")
+
+      full_source.gsub!(/<br \/>/,"")
+      full_source.gsub!(/<\/?p>/,"")
+      full_source.gsub!(/<\/?div>/,"")
+
+      if full_source.include?  ('|||||')
+        ary = full_source.split('|||||')
+        preamble = ary[0]
+        source   = ary[1]
+      else
+        preamble = ""
+        source   = full_source
       end
-      unless preamble.nil? || preamble.empty?
-        preamble.gsub!(/<br \/>/,"")
-        preamble.gsub!(/<\/?p>/,"")
-        preamble.gsub!(/<\/?div>/,"")
-      end
+
       name = Digest::SHA256.hexdigest(preamble+source)
       if !WikiLatex.find_by_image_id(name)
         @latex = WikiLatex.new(:source => source, :image_id => name, :preamble => preamble)
