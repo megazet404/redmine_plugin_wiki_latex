@@ -19,19 +19,20 @@ class WikiLatexController < ApplicationController
 
     PATH_Q = quote(WikiLatexConfig::TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TOOLS_PATH, ""))
 
-    def make_png
-      begin
-        Dir.mkdir(@dir)
-      rescue
+    def make_tex
+      FileUtils.mkdir_p(@dir)
+
+      File.open(@basefilepath+".tex", 'wb') do |f|
+        f.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
+        f.print(@latex.preamble, "\n")
+        f.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
+        f.print(@latex.source, "\n")
+        f.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
       end
-      temp_latex = File.open(@basefilepath+".tex",'wb')
-      temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
-      temp_latex.print(@latex.preamble, "\n")
-      temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
-      temp_latex.print(@latex.source, "\n")
-      temp_latex.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
-      temp_latex.flush
-      temp_latex.close
+    end
+
+    def make_png
+      make_tex
 
       if WikiLatexConfig::Png::GRAPHICS_SUPPORT
         system("cd #{@dir_q} && #{PATH_Q}pdflatex --interaction=nonstopmode #{@name}.tex")
