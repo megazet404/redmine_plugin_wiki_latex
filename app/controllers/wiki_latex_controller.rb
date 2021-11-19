@@ -43,7 +43,7 @@ private
     temp_latex.flush
     temp_latex.close
 
-    if WikiLatexConfig::Png::CONVERT_VIA_PDF
+    if WikiLatexConfig::Png::GRAPHICS_SUPPORT
       system("cd #{dir} && #{PATH}pdflatex --interaction=nonstopmode #{@name}.tex")
       system("cd #{dir} && #{PATH}pdftops -eps #{@name}.pdf")
       system("cd #{dir} && #{PATH}convert -density 100 #{@name}.eps #{@name}.png")
