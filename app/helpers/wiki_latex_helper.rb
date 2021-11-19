@@ -42,6 +42,7 @@ module WikiLatexHelper
       end
     end
 
+  private
     def render_template(view, template, locals)
       view.controller.render_to_string(:template => "wiki_latex/#{template}", :layout => false, :locals => locals)
     end
@@ -50,6 +51,7 @@ module WikiLatexHelper
       render_template(view, "header", {:view => view})
     end
 
+  public
     def render()
       content =  ""
       content += render_header  (@view)
