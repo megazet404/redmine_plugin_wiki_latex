@@ -1,6 +1,6 @@
 class WikiLatexController < ApplicationController
 
-  PATH = (WikiLatexConfig::TEX_TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TEX_TOOLS_PATH, ""))
+  PATH = (WikiLatexConfig::TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TOOLS_PATH, ""))
 
   def image
     @latex = WikiLatex.find_by_image_id(params[:image_id])
