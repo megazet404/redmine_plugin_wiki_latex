@@ -24,12 +24,12 @@ module WikiLatexHelper
       # Get rid of nasty Windows line endings.
       full_source.gsub!(/\r\n?/, "\n")
 
-      # ???
+      # Do we really need this processing???
       full_source.gsub!(/<br \/>/,"")
       full_source.gsub!(/<\/?p>/,"")
       full_source.gsub!(/<\/?div>/,"")
 
-      # ??????
+      # Do we really need this processing??????
       full_source.gsub!('\\\\','\\')
 
       if full_source.include?  ('|||||')
