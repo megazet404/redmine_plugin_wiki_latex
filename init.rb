@@ -32,19 +32,19 @@ Redmine::Plugin.register :wiki_latex do
   description 'Render latex images'
   version '0.1.0'
 
-	Redmine::WikiFormatting::Macros.register do
+  Redmine::WikiFormatting::Macros.register do
 
-		desc <<'EOF'
+    desc <<'EOF'
 Latex Plugin
 {{latex(place inline latex code here)}}
 
 Don't use curly braces. '
 EOF
-		macro :latex, {:parse_args => false} do |wiki_content_obj, args, text|
-			args = text if text
-			m = WikiLatexHelper::Macro.new(self, args.to_s)
-			m.render
-		end
+    macro :latex, {:parse_args => false} do |wiki_content_obj, args, text|
+      args = text if text
+      m = WikiLatexHelper::Macro.new(self, args.to_s)
+      m.render
+    end
 
 
     # code borrowed from wiki template macro
