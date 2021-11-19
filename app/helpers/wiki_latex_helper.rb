@@ -2,6 +2,13 @@ require 'digest/sha2'
 require	'tempfile'
 
 module WikiLatexHelper
+
+  DIR = File.join(Rails.root, 'tmp', 'wiki_latex')
+
+  def self.rm_rf(path)
+    FileUtils.rm_r(path, force: true, secure: true)
+  end
+
   def render_image_tag(image_name, preamble, source)
     render_to_string :template => 'wiki_latex/macro_inline', :layout => false, :locals => {:name => image_name, :source => source, :preamble => preamble}
   end

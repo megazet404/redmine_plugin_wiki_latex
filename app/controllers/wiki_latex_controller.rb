@@ -6,7 +6,7 @@ class WikiLatexController < ApplicationController
     @latex = WikiLatex.find_by_image_id(params[:image_id])
     @name = params[:image_id]
     if @name != "error"
-	image_file = File.join([Rails.root, 'tmp', 'wiki_latex', @name+".png"])
+	image_file = File.join([WikiLatexHelper::DIR, @name+".png"])
     else
 	image_file = File.join([Rails.root, 'public', 'plugin_assets', 'wiki_latex', 'images', @name+".png"])
     end
@@ -28,7 +28,7 @@ class WikiLatexController < ApplicationController
 
 private
   def render_image
-    dir = File.join([Rails.root, 'tmp', 'wiki_latex'])
+    dir = WikiLatexHelper::DIR
     begin
       Dir.mkdir(dir)
     rescue
