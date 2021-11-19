@@ -24,9 +24,9 @@ class WikiLatexController < ApplicationController
 
       File.open(@basefilepath+".tex", 'wb') do |f|
         f.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
-        f.print(@latex.preamble, "\n")
+        f.print(@latex.preamble, "\n") if !@latex.preamble.empty?
         f.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
-        f.print(@latex.source, "\n")
+        f.print(@latex.source  , "\n") if !@latex.source.empty?
         f.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
       end
     end
