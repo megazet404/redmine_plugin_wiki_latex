@@ -27,11 +27,11 @@ module WikiLatexHelper
 
       if full_source.include?  ('|||||')
         ary = full_source.split('|||||')
-        source   = ary[1]
         preamble = ary[0]
+        source   = ary[1]
       else
-        source   = full_source
         preamble = ""
+        source   = full_source
       end
 
       name = Digest::SHA256.hexdigest(preamble+source)
