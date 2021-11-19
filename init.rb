@@ -24,6 +24,16 @@ module WikiLatexConfig
 
 end
 
+################################################################
+
+def get_macro_content(args, text)
+  # Convert array to string if 'args' is array (it shouldn't be if ':parse_args => false')
+  args = args.join(",") if args.kind_of?(Array)
+
+  # Return 'args' as the content of macro.
+  return args
+end
+
 Rails.logger.info 'Starting wiki_latex for Redmine'
 
 Redmine::Plugin.register :wiki_latex do
@@ -41,8 +51,8 @@ Latex Plugin
 Don't use curly braces. '
 EOF
     macro :latex, {:parse_args => false} do |wiki_content_obj, args, text|
-      args = text if text
-      m = WikiLatexHelper::Macro.new(self, args.to_s)
+      latex_source_code = get_macro_content(args, text)
+      m = WikiLatexHelper::Macro.new(self, latex_source_code)
       m.render
     end
 
@@ -54,7 +64,8 @@ Include wiki page rendered with latex.
 EOF
     macro :latex_include, {:parse_args => false} do |obj, args, text|
       raise "latex_include can't be multiline" if !text.nil?
-      page = Wiki.find_page(args.to_s, :project => @project)
+      page_title = get_macro_content(args, text)
+      page = Wiki.find_page(page_title, :project => @project)
       raise 'Page not found' if page.nil? || !User.current.allowed_to?(:view_wiki_pages, page.wiki.project)
 
       @included_wiki_pages ||= []
@@ -62,7 +73,7 @@ EOF
       @included_wiki_pages << page.title
       m = WikiLatexHelper::Macro.new(self, page.content.text)
       @included_wiki_pages.pop
-      m.render_block(args.to_s)
+      m.render_block(page_title)
     end
   end
 
