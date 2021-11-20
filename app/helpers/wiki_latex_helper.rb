@@ -52,7 +52,7 @@ module WikiLatexHelper
         source   = full_source
       end
 
-      name = Digest::SHA256.hexdigest(preamble+source)
+      name = Digest::SHA256.hexdigest(full_source)
 
       @latex = WikiLatex.find_by_image_id(name)
       if !@latex
