@@ -10,7 +10,28 @@ module WikiLatexHelper
   end
 
   class Macro
-    def initialize(full_source)
+    def self.render_inline(source, view)
+      Macro.new(:source => source).render_inline(view)
+    end
+
+    def self.render_block(project, page, view)
+      Macro.new(:project => project, :page => page).render_block(view)
+    end
+
+    def initialize(params)
+      if (params.key?(:source))
+        full_source = params[:source]
+      else
+        @page = Wiki.find_page(params[:page], :project => params[:project])
+        raise 'page not found' if @page.nil? || !User.current.allowed_to?(:view_wiki_pages, @page.wiki.project)
+
+        @included_wiki_pages ||= []
+        raise 'circular inclusion detected' if @included_wiki_pages.include?(@page.title)
+        @included_wiki_pages << @page.title
+        @included_wiki_pages.pop
+        full_source = @page.content.text
+      end
+
       # Get rid of nasty Windows line endings.
       full_source.gsub!(/\r\n?/, "\n")
 
@@ -57,10 +78,10 @@ module WikiLatexHelper
       content.html_safe
     end
 
-    def render_block(view, page)
+    def render_block(view)
       content =  ""
       content += render_header  (view)
-      content += render_template(view, "macro_block", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source, :page => page})
+      content += render_template(view, "macro_block", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source, :page => @page})
       content.html_safe
     end
   end
