@@ -20,6 +20,11 @@ class WikiLatexController < ApplicationController
   private
     PATH_Q = quote(WikiLatexConfig::TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TOOLS_PATH, ""))
 
+    def run_cmd(cmd)
+      success = system(cmd)
+      raise "failed to run: #{cmd}" if !success
+    end
+
     def make_tex
       FileUtils.mkdir_p(@dir)
 
@@ -53,7 +58,7 @@ class WikiLatexController < ApplicationController
         end
       end
 
-      system("cd #{@dir_q} && #{PATH_Q}#{tool} #{opts} #{@name}.tex")
+      run_cmd("cd #{@dir_q} && #{PATH_Q}#{tool} #{opts} #{@name}.tex")
     end
 
     def make_pdf
@@ -66,18 +71,21 @@ class WikiLatexController < ApplicationController
 
   public
     def make_png
-      make_tex
+      begin
+        make_tex
 
-      if WikiLatexConfig::Png::GRAPHICS_SUPPORT
-        make_pdf
-        system("cd #{@dir_q} && #{PATH_Q}pdftops -eps #{@name}.pdf")
-        system("cd #{@dir_q} && #{PATH_Q}convert -density 100 #{@name}.eps #{@name}.png")
-      else
-        make_dvi
-        system("cd #{@dir_q} && #{PATH_Q}dvipng -T tight -bg Transparent #{@name}.dvi -q -o #{@name}.png")
-      end
-      ['tex','pdf','eps','dvi','log','aux'].each do |ext|
-        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
+        if WikiLatexConfig::Png::GRAPHICS_SUPPORT
+          make_pdf
+          run_cmd("cd #{@dir_q} && #{PATH_Q}pdftops -eps #{@name}.pdf")
+          run_cmd("cd #{@dir_q} && #{PATH_Q}convert -density 100 #{@name}.eps #{@name}.png")
+        else
+          make_dvi
+          run_cmd("cd #{@dir_q} && #{PATH_Q}dvipng -T tight -bg Transparent #{@name}.dvi -q -o #{@name}.png")
+        end
+      ensure
+        ['tex','pdf','eps','dvi','log','aux'].each do |ext|
+          WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
+        end
       end
     end
   end
