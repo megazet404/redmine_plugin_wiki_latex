@@ -81,6 +81,10 @@ class WikiLatexController < ApplicationController
 
   public
     def make_png
+      filepath = "#{@basefilepath}.png"
+
+      return filepath if File.exists?(filepath)
+
       begin
         make_tex
 
@@ -92,12 +96,13 @@ class WikiLatexController < ApplicationController
           make_dvi
           run_cmd("cd #{@dir_q} && #{PATH_Q}dvipng -T tight -bg Transparent #{@name}.dvi -q -o #{@name}.png")
         end
-        check_file("#{@basefilepath}.png")
+        check_file(filepath)
       ensure
         ['tex','pdf','eps','dvi','log','aux'].each do |ext|
           WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
         end
       end
+      return filepath
     end
   end
 
