@@ -164,6 +164,9 @@ class WikiLatexController < ApplicationController
         # Compose command line options.
         opts = ""
         begin
+          # SVG with text looks bad, make all text vectorized.
+          opts += " -n"
+
           # Print only errors and warnings to logs.
           opts += " -v3"
         end
