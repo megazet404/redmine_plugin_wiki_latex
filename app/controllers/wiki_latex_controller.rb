@@ -154,7 +154,7 @@ class WikiLatexController < ApplicationController
     end
   end
 
-  def image
+  def image_png
     begin
       filepath = LatexProcessor.make_png(File.join(WikiLatexHelper::DIR, params[:image_id]))
       send_png(filepath)
