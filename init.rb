@@ -88,7 +88,7 @@ EOF
       @included_wiki_pages << page.title
       m = WikiLatexHelper::Macro.new(page.content.text)
       @included_wiki_pages.pop
-      m.render_block(self, page_title)
+      m.render_block(self, page)
     end
   end
 

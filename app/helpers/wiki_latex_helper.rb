@@ -57,10 +57,10 @@ module WikiLatexHelper
       content.html_safe
     end
 
-    def render_block(view, wiki_name)
+    def render_block(view, page)
       content =  ""
       content += render_header  (view)
-      content += render_template(view, "macro_block", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source, :wiki_name => wiki_name})
+      content += render_template(view, "macro_block", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source, :page => page})
       content.html_safe
     end
   end
