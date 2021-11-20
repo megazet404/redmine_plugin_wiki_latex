@@ -87,6 +87,36 @@ class WikiLatexController < ApplicationController
       run_latex("latex", "dvi")
     end
 
+    def make_png_via_pdf
+      # Make PDF from LaTeX source code.
+      make_pdf
+
+      # Convert PDF to EPS.
+      run_cmd("cd #{@dir_q} && #{PATH_Q}pdftops -eps #{@name}.pdf")
+
+      # Convert EPS to PNG.
+      run_cmd("cd #{@dir_q} && #{PATH_Q}convert #{@name}.eps #{@name}.png")
+    end
+
+    def make_png_via_dvi
+      make_dvi
+
+      # Compose command line options.
+      opts = ""
+      begin
+        # Crop PNG to contain only pixels with TeX content.
+        opts += " -T tight"
+
+        # Make background transparent.
+        opts += " -bg Transparent"
+
+        # Print only errors to logs.
+        opts += " -q"
+      end
+
+      run_cmd("cd #{@dir_q} && #{PATH_Q}dvipng #{opts} #{@name}.dvi -o #{@name}.png")
+    end
+
   public
     def make_png
       filepath = "#{@basefilepath}.png"
@@ -95,12 +125,9 @@ class WikiLatexController < ApplicationController
 
       begin
         if WikiLatexConfig::Png::GRAPHICS_SUPPORT
-          make_pdf
-          run_cmd("cd #{@dir_q} && #{PATH_Q}pdftops -eps #{@name}.pdf")
-          run_cmd("cd #{@dir_q} && #{PATH_Q}convert -density 100 #{@name}.eps #{@name}.png")
+          make_png_via_pdf
         else
-          make_dvi
-          run_cmd("cd #{@dir_q} && #{PATH_Q}dvipng -T tight -bg Transparent #{@name}.dvi -q -o #{@name}.png")
+          make_png_via_dvi
         end
         check_file(filepath)
       ensure
