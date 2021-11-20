@@ -46,7 +46,7 @@ module WikiLatexHelper
     end
 
     def render_header(view)
-      render_template(view, "header", {})
+      render_template(view, "header", {:view => view})
     end
 
   public

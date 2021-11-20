@@ -31,6 +31,17 @@ module WikiLatexConfig
 
   end
 
+  # Workarounds.
+  module Wa
+
+    # For some reasons, 'content_for' doesn't work without using the "view"
+    # object in the wiki_latex ERB template. The wiki_latex CSS is not linked
+    # to the page because of that. This WA makes using 'view' explicitly for
+    # 'content_for'.
+    CSS_VIA_VIEW = true
+
+  end
+
 end
 
 ################################################################

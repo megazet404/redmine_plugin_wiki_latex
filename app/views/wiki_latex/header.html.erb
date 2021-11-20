@@ -1,3 +1,16 @@
-<% content_for :header_tags do %>
-   <%= stylesheet_link_tag "wiki_latex.css", :plugin => "wiki_latex", :media => :all %>
+<% if !WikiLatexConfig::Wa::CSS_VIA_VIEW %>
+  <% content_for :header_tags do %>
+    <%= stylesheet_link_tag "wiki_latex.css", :plugin => "wiki_latex", :media => :all %>
+  <% end %>
+<% else %>
+  <%
+    # Check that CSS is not linked to the page yet to avoid multiple linkings of the same CSS file.
+    if !view.instance_variable_get("@wiki_latex_css_linked")
+      # Use 'content_for' with 'view'.
+      view.content_for :header_tags do
+        stylesheet_link_tag "wiki_latex.css", :plugin => "wiki_latex", :media => :all
+      end
+      view.instance_variable_set("@wiki_latex_css_linked", true)
+    end
+  %>
 <% end %>
