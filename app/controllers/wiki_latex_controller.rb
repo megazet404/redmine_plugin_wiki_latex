@@ -94,8 +94,11 @@ class WikiLatexController < ApplicationController
       # Convert PDF to EPS.
       run_cmd("cd #{@dir_q} && #{PATH_Q}pdftops -eps #{@name}.pdf")
 
+      # Zoom options.
+      opts = " -density " + (WikiLatexConfig::ZOOM_FACTOR * 100.0).round.to_s
+
       # Convert EPS to PNG.
-      run_cmd("cd #{@dir_q} && #{PATH_Q}convert #{@name}.eps #{@name}.png")
+      run_cmd("cd #{@dir_q} && #{PATH_Q}convert #{opts} #{@name}.eps #{@name}.png")
     end
 
     def make_png_via_dvi
@@ -104,6 +107,11 @@ class WikiLatexController < ApplicationController
       # Compose command line options.
       opts = ""
       begin
+        if WikiLatexConfig::ZOOM_FACTOR != 1
+          # Zoom image.
+          opts += " -D " + (WikiLatexConfig::ZOOM_FACTOR * 100.0).round.to_s
+        end
+
         # Crop PNG to contain only pixels with TeX content.
         opts += " -T tight"
 

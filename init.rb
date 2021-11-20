@@ -20,6 +20,9 @@ module WikiLatexConfig
   # except errors.
   LATEX_QUIET          = false
 
+  # Use this option to make LaTeX formulas bigger or smaller.
+  ZOOM_FACTOR          = 1.0
+
   # PNG options.
   module Png
 
