@@ -1,6 +1,7 @@
 class WikiLatexController < ApplicationController
   class LatexProcessor
     class ErrorNotFound < StandardError; end
+    class ErrorBadTex   < StandardError; end
 
     def self.make_png(basefilepath)
       LatexProcessor.new(basefilepath).make_png()
@@ -70,8 +71,12 @@ class WikiLatexController < ApplicationController
         opts += " -halt-on-error"
       end
 
-      run_cmd("cd #{@dir_q} && #{PATH_Q}#{tool} #{opts} #{@name}.tex")
-      check_file("#{@basefilepath}.#{ext}")
+      begin
+        run_cmd("cd #{@dir_q} && #{PATH_Q}#{tool} #{opts} #{@name}.tex")
+        check_file("#{@basefilepath}.#{ext}")
+      rescue
+        raise ErrorBadTex
+      end
     end
 
     def make_pdf
@@ -112,12 +117,23 @@ class WikiLatexController < ApplicationController
   def image
     begin
       filepath = LatexProcessor.make_png(File.join(WikiLatexHelper::DIR, params[:image_id]))
-
-      #render :file => filepath, :layout => false, :content_type => 'image/png'
-      f = open(filepath, "rb") { |io| io.read }
-      send_data f, :type => 'image/png',:disposition => 'inline'
+      send_png(filepath)
     rescue LatexProcessor::ErrorNotFound
       render_404
+    rescue LatexProcessor::ErrorBadTex
+      render_bad_tex
     end
+  end
+
+private
+  def send_png(filepath)
+    send_file filepath, :type => 'image/png', :disposition => 'inline'
+  end
+
+  def render_bad_tex
+    filepath = File.join(Rails.root, 'public', 'plugin_assets', 'wiki_latex', 'images', "error.png")
+    return render_404 if !File.exists?(filepath)
+
+    send_png filepath
   end
 end
