@@ -1,5 +1,4 @@
 require 'digest/sha2'
-require 'tempfile'
 
 module WikiLatexHelper
 
