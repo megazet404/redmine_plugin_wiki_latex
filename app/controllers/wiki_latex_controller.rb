@@ -56,6 +56,11 @@ class WikiLatexController < ApplicationController
           # Print only errors to logs.
           opts += " -quiet"
         end
+
+        # If there are any errors in LaTeX source then 'latex' exits with error code
+        # even if the errors were automatically fixed. We check for error codes,
+        # so it doesn't make sense for us to continue after error.
+        opts += " -halt-on-error"
       end
 
       run_cmd("cd #{@dir_q} && #{PATH_Q}#{tool} #{opts} #{@name}.tex")
