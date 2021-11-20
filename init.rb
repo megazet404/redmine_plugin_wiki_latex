@@ -69,7 +69,6 @@ Redmine::Plugin.register :wiki_latex do
   version '0.1.0'
 
   Redmine::WikiFormatting::Macros.register do
-
     desc <<'EOF'
 Latex Plugin
 {{latex(place inline latex code here)}}
@@ -80,7 +79,6 @@ EOF
       latex_source_code = get_macro_content(args, text)
       WikiLatexHelper::Macro.render_inline(latex_source_code, self)
     end
-
 
     # code borrowed from wiki template macro
     desc <<'EOF'
@@ -93,7 +91,6 @@ EOF
       WikiLatexHelper::Macro.render_block(@project, page_title, self)
     end
   end
-
 end
 
 if WikiLatexConfig::CLEAN_FILES_ON_START
