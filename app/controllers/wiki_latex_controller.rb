@@ -164,8 +164,9 @@ class WikiLatexController < ApplicationController
         # Compose command line options.
         opts = ""
         begin
-          # SVG with text looks bad, make all text vectorized.
-          opts += " -n"
+          # Embed font or not.
+          # Unfortunately '-f svg' is broken, so we use '-f woff2'. 'ah' is auto hinting.
+          opts += (WikiLatexConfig::Svg::EMBED_FONT ? " -f woff2,ah" : " -n")
 
           # Print only errors and warnings to logs.
           opts += " -v3"
