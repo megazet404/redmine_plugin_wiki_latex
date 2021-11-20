@@ -94,8 +94,6 @@ class WikiLatexController < ApplicationController
       return filepath if File.exists?(filepath)
 
       begin
-        make_tex
-
         if WikiLatexConfig::Png::GRAPHICS_SUPPORT
           make_pdf
           run_cmd("cd #{@dir_q} && #{PATH_Q}pdftops -eps #{@name}.pdf")
