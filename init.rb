@@ -69,7 +69,6 @@ Redmine::Plugin.register :wiki_latex do
   version '0.1.0'
 
   Redmine::WikiFormatting::Macros.register do
-
     desc <<'EOF'
 Latex Plugin
 {{latex(place inline latex code here)}}
@@ -78,10 +77,8 @@ Don't use curly braces. '
 EOF
     macro :latex, {:parse_args => false} do |wiki_content_obj, args, text|
       latex_source_code = get_macro_content(args, text)
-      m = WikiLatexHelper::Macro.new(latex_source_code)
-      m.render_inline(self)
+      WikiLatexHelper::Macro.render_inline(latex_source_code, self)
     end
-
 
     # code borrowed from wiki template macro
     desc <<'EOF'
@@ -91,18 +88,9 @@ EOF
     macro :latex_include, {:parse_args => false} do |obj, args, text|
       raise "latex_include can't be multiline" if !text.nil?
       page_title = get_macro_content(args, text)
-      page = Wiki.find_page(page_title, :project => @project)
-      raise 'Page not found' if page.nil? || !User.current.allowed_to?(:view_wiki_pages, page.wiki.project)
-
-      @included_wiki_pages ||= []
-      raise 'Circular inclusion detected' if @included_wiki_pages.include?(page.title)
-      @included_wiki_pages << page.title
-      m = WikiLatexHelper::Macro.new(page.content.text)
-      @included_wiki_pages.pop
-      m.render_block(self, page)
+      WikiLatexHelper::Macro.render_block(@project, page_title, self)
     end
   end
-
 end
 
 if WikiLatexConfig::CLEAN_FILES_ON_START
