@@ -113,9 +113,7 @@ class WikiLatexController < ApplicationController
     begin
       filepath = LatexProcessor.make_png(File.join(WikiLatexHelper::DIR, params[:image_id]))
 
-      #render :file => filepath, :layout => false, :content_type => 'image/png'
-      f = open(filepath, "rb") { |io| io.read }
-      send_data f, :type => 'image/png',:disposition => 'inline'
+      send_file filepath, :type => 'image/png', :disposition => 'inline'
     rescue LatexProcessor::ErrorNotFound
       render_404
     end
