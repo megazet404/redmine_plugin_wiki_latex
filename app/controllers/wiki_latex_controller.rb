@@ -25,6 +25,10 @@ class WikiLatexController < ApplicationController
       raise "failed to run: #{cmd}" if !success
     end
 
+    def check_file(filepath)
+      raise "file was not created: #{filepath}" if !File.exists?(filepath)
+    end
+
     def make_tex
       FileUtils.mkdir_p(@dir)
 
@@ -37,7 +41,7 @@ class WikiLatexController < ApplicationController
       end
     end
 
-    def run_latex(tool)
+    def run_latex(tool, ext)
       make_tex
 
       # Compose command line options.
@@ -64,14 +68,15 @@ class WikiLatexController < ApplicationController
       end
 
       run_cmd("cd #{@dir_q} && #{PATH_Q}#{tool} #{opts} #{@name}.tex")
+      check_file("#{@basefilepath}.#{ext}")
     end
 
     def make_pdf
-      run_latex("pdflatex")
+      run_latex("pdflatex", "pdf")
     end
 
     def make_dvi
-      run_latex("latex")
+      run_latex("latex", "dvi")
     end
 
   public
@@ -87,6 +92,7 @@ class WikiLatexController < ApplicationController
           make_dvi
           run_cmd("cd #{@dir_q} && #{PATH_Q}dvipng -T tight -bg Transparent #{@name}.dvi -q -o #{@name}.png")
         end
+        check_file("#{@basefilepath}.png")
       ensure
         ['tex','pdf','eps','dvi','log','aux'].each do |ext|
           WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
