@@ -8,6 +8,14 @@ module WikiLatexHelper
     FileUtils.rm_r(path, force: true, secure: true)
   end
 
+  def self.suppress(&block) # Suppress exception.
+    begin
+      block.call
+    rescue
+      # Igore exception.
+    end
+  end
+
   class Macro
     def self.render_inline(source, view)
       Macro.new(:source => source).render_inline(view)

@@ -77,7 +77,7 @@ class WikiLatexController < ApplicationController
         system("cd #{@dir_q} && #{PATH_Q}dvipng -T tight -bg Transparent #{@name}.dvi -q -o #{@name}.png")
       end
       ['tex','pdf','eps','dvi','log','aux'].each do |ext|
-        WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}")
+        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
       end
     end
   end
