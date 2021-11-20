@@ -52,11 +52,11 @@ module WikiLatexHelper
         source   = full_source
       end
 
-      name = Digest::SHA256.hexdigest(full_source)
+      image_id = Digest::SHA256.hexdigest(full_source)
 
-      @latex = WikiLatex.find_by_image_id(name)
+      @latex = WikiLatex.find_by_image_id(image_id)
       if !@latex
-        @latex = WikiLatex.new(:source => source, :image_id => name, :preamble => preamble)
+        @latex = WikiLatex.new(:source => source, :image_id => image_id, :preamble => preamble)
         @latex.save
       end
     end
