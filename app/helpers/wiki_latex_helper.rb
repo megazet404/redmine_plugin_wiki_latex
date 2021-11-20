@@ -19,52 +19,70 @@ module WikiLatexHelper
     end
 
     def initialize(params)
-      if (params.key?(:source))
-        full_source = params[:source]
-      else
-        @page = Wiki.find_page(params[:page], :project => params[:project])
-        raise 'page not found' if @page.nil? || !User.current.allowed_to?(:view_wiki_pages, @page.wiki.project)
+      # Retrieve full_source from params.
+      begin
+        if (params.key?(:source))
+          full_source = params[:source]
+        else
+          @page = Wiki.find_page(params[:page], :project => params[:project])
+          raise 'page not found' if @page.nil? || !User.current.allowed_to?(:view_wiki_pages, @page.wiki.project)
 
-        @included_wiki_pages ||= []
-        raise 'circular inclusion detected' if @included_wiki_pages.include?(@page.title)
-        @included_wiki_pages << @page.title
-        @included_wiki_pages.pop
-        full_source = @page.content.text
+          @included_wiki_pages ||= []
+          raise 'circular inclusion detected' if @included_wiki_pages.include?(@page.title)
+          @included_wiki_pages << @page.title
+          @included_wiki_pages.pop
+          full_source = @page.content.text
+        end
       end
 
-      # Get rid of nasty Windows line endings.
-      full_source.gsub!(/\r\n?/, "\n")
+      # Process full_source.
+      begin
+        # Get rid of nasty Windows line endings.
+        full_source.gsub!(/\r\n?/, "\n")
 
-      # Do we really need this processing???
-      full_source.gsub!(/<br \/>/,"")
-      full_source.gsub!(/<\/?p>/,"")
-      full_source.gsub!(/<\/?div>/,"")
+        # Do we really need this processing???
+        full_source.gsub!(/<br \/>/,"")
+        full_source.gsub!(/<\/?p>/,"")
+        full_source.gsub!(/<\/?div>/,"")
 
-      # Do we really need this processing??????
-      full_source.gsub!('\\\\','\\')
-
-      image_id = Digest::SHA256.hexdigest(full_source)
-
-      # We need to encode string to default encoding, because the function above generates binary
-      # string, and some DBMSes (SQLite for example) do not work well with binary strings.
-      image_id.encode!()
-
-      @latex = WikiLatex.find_by_image_id(image_id)
-      if (@latex)
-        return
+        # Do we really need this processing??????
+        full_source.gsub!('\\\\','\\')
       end
 
-      if full_source.include?  ('|||||')
-        ary = full_source.split('|||||')
-        preamble = ary[0]
-        source   = ary[1]
-      else
-        preamble = ""
-        source   = full_source
+      # Get image ID from full_source.
+      begin
+        image_id = Digest::SHA256.hexdigest(full_source)
+
+        # We need to encode string to default encoding, because the function above generates binary
+        # string, and some DBMSes (SQLite for example) do not work well with binary strings.
+        image_id.encode!()
       end
 
-      @latex = WikiLatex.new(:image_id => image_id, :preamble => preamble, :source => source)
-      @latex.save
+      # Try fetch source from DB.
+      begin
+        @latex = WikiLatex.find_by_image_id(image_id)
+        if (@latex)
+          return
+        end
+      end
+
+      # Split full_source.
+      begin
+        if full_source.include?  ('|||||')
+          ary = full_source.split('|||||')
+          preamble = ary[0]
+          source   = ary[1]
+        else
+          preamble = ""
+          source   = full_source
+        end
+      end
+
+      # Save source.
+      begin
+        @latex = WikiLatex.new(:image_id => image_id, :preamble => preamble, :source => source)
+        @latex.save
+      end
     end
 
   private
