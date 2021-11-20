@@ -117,7 +117,7 @@ if WikiLatexConfig::CLEAN_FILES_ON_START
 else
   # Remove possible garbage.
   dir = File.join(WikiLatexHelper::DIR, "")
-  ['tex','pdf','eps','log','aux','dvi','tmp'].each do |ext|
+  ['tex','pdf','eps','dvi','log','aux','tmp'].each do |ext|
     WikiLatexHelper::rm_rf(Dir.glob("#{dir}*.#{ext}"))
   end
 end
