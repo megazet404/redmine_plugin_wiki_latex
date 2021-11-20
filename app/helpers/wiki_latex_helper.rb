@@ -56,7 +56,7 @@ module WikiLatexHelper
 
       @latex = WikiLatex.find_by_image_id(image_id)
       if !@latex
-        @latex = WikiLatex.new(:source => source, :image_id => image_id, :preamble => preamble)
+        @latex = WikiLatex.new(:image_id => image_id, :preamble => preamble, :source => source)
         @latex.save
       end
     end
