@@ -7,6 +7,10 @@ class WikiLatexController < ApplicationController
       LatexProcessor.new(basefilepath).make_png()
     end
 
+    def self.make_svg(basefilepath)
+      LatexProcessor.new(basefilepath).make_svg()
+    end
+
     def self.quote(str)
       (str == "" ? "" : '"' + str + '"')
     end
@@ -152,6 +156,21 @@ class WikiLatexController < ApplicationController
         end
       end
     end
+
+    def make_svg
+      return make_from_tex("svg") do
+        make_dvi
+
+        # Compose command line options.
+        opts = ""
+        begin
+          # Print only errors and warnings to logs.
+          opts += " -v3"
+        end
+
+        run_cmd("cd #{@dir_q} && #{PATH_Q}dvisvgm #{opts} #{@name}.dvi")
+      end
+    end
   end
 
   def image_png
@@ -163,9 +182,22 @@ class WikiLatexController < ApplicationController
     end
   end
 
+  def image_svg
+    begin
+      filepath = LatexProcessor.make_svg(File.join(WikiLatexHelper::DIR, params[:image_id]))
+      send_svg(filepath)
+    rescue
+      handle_error
+    end
+  end
+
 private
   def send_png(filepath)
     send_file filepath, :type => 'image/png', :disposition => 'inline'
+  end
+
+  def send_svg(filepath)
+    send_file filepath, :type => 'image/svg+xml', :disposition => 'inline'
   end
 
   def render_bad_tex
