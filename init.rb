@@ -42,6 +42,12 @@ module WikiLatexConfig
     # lines.
     EMBED_FONT                = true
 
+    # It seems that 'dvisvgm' is not "thread" safe. If multiple instances run
+    # simultaneously, they cannot create temporary files sometimes.
+    # If this option is enabled, the plugin creates a separate temporary
+    # directory for each instance of 'dvisvgm'. This works around the problem.
+    WA_MAKE_TMP               = true
+
   end
 
   # Workarounds.
@@ -111,7 +117,7 @@ if WikiLatexConfig::CLEAN_FILES_ON_START
 else
   # Remove possible garbage.
   dir = File.join(WikiLatexHelper::DIR, "")
-  ['tex','pdf','eps','log','aux','dvi'].each do |ext|
+  ['tex','pdf','eps','log','aux','dvi','tmp'].each do |ext|
     WikiLatexHelper::rm_rf(Dir.glob("#{dir}*.#{ext}"))
   end
 end

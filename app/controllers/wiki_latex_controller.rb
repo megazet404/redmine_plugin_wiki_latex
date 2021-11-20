@@ -138,7 +138,7 @@ class WikiLatexController < ApplicationController
         block.call
         check_file(filepath)
       ensure
-        ['tex','pdf','eps','dvi','log','aux'].each do |ext|
+        ['tex','pdf','eps','dvi','log','aux','tmp'].each do |ext|
           WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
         end
       end
@@ -170,6 +170,12 @@ class WikiLatexController < ApplicationController
 
           # Print only errors and warnings to logs.
           opts += " -v3"
+
+          if WikiLatexConfig::Svg::WA_MAKE_TMP
+            # Create temporary directory for temporary files produced by 'dvisvgm'.
+            FileUtils.mkdir_p("#{@basefilepath}.tmp")
+            opts += " --tmpdir=#{@basefilepath}.tmp"
+          end
         end
 
         run_cmd("cd #{@dir_q} && #{PATH_Q}dvisvgm #{opts} #{@name}.dvi")
