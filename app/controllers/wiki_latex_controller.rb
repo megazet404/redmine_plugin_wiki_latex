@@ -7,6 +7,10 @@ class WikiLatexController < ApplicationController
       LatexProcessor.new(basefilepath).make_png()
     end
 
+    def self.make_svg(basefilepath)
+      LatexProcessor.new(basefilepath).make_svg()
+    end
+
     def self.quote(str)
       (str == "" ? "" : '"' + str + '"')
     end
@@ -125,36 +129,65 @@ class WikiLatexController < ApplicationController
       run_cmd("cd #{@dir_q} && #{PATH_Q}dvipng #{opts} #{@name}.dvi -o #{@name}.png")
     end
 
-  public
-    def make_png
-      filepath = "#{@basefilepath}.png"
+    def make_from_tex(ext, &block)
+      filepath = "#{@basefilepath}.#{ext}"
 
       return filepath if File.exists?(filepath)
 
       begin
-        if WikiLatexConfig::Png::GRAPHICS_SUPPORT
-          make_png_via_pdf
-        else
-          make_png_via_dvi
-        end
+        block.call
         check_file(filepath)
       ensure
         ['tex','pdf','eps','dvi','log','aux'].each do |ext|
           WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
         end
       end
+
       return filepath
+    end
+
+  public
+    def make_png
+      return make_from_tex("png") do
+        if WikiLatexConfig::Png::GRAPHICS_SUPPORT
+          make_png_via_pdf
+        else
+          make_png_via_dvi
+        end
+      end
+    end
+
+    def make_svg
+      return make_from_tex("svg") do
+        make_dvi
+
+        # Compose command line options.
+        opts = ""
+        begin
+          # Print only errors and warnings to logs.
+          opts += " -v3"
+        end
+
+        run_cmd("cd #{@dir_q} && #{PATH_Q}dvisvgm #{opts} #{@name}.dvi")
+      end
     end
   end
 
-  def image
+  def image_png
     begin
       filepath = LatexProcessor.make_png(File.join(WikiLatexHelper::DIR, params[:image_id]))
       send_png(filepath)
-    rescue LatexProcessor::ErrorNotFound
-      render_404
-    rescue LatexProcessor::ErrorBadTex
-      render_bad_tex
+    rescue
+      handle_error
+    end
+  end
+
+  def image_svg
+    begin
+      filepath = LatexProcessor.make_svg(File.join(WikiLatexHelper::DIR, params[:image_id]))
+      send_svg(filepath)
+    rescue
+      handle_error
     end
   end
 
@@ -163,10 +196,24 @@ private
     send_file filepath, :type => 'image/png', :disposition => 'inline'
   end
 
+  def send_svg(filepath)
+    send_file filepath, :type => 'image/svg+xml', :disposition => 'inline'
+  end
+
   def render_bad_tex
     filepath = File.join(Rails.root, 'public', 'plugin_assets', 'wiki_latex', 'images', "error.png")
     return render_404 if !File.exists?(filepath)
 
     send_png filepath
+  end
+
+  def handle_error
+    begin
+      raise
+    rescue LatexProcessor::ErrorNotFound
+      render_404
+    rescue LatexProcessor::ErrorBadTex
+      render_bad_tex
+    end
   end
 end
