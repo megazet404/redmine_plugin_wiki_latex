@@ -125,25 +125,32 @@ class WikiLatexController < ApplicationController
       run_cmd("cd #{@dir_q} && #{PATH_Q}dvipng #{opts} #{@name}.dvi -o #{@name}.png")
     end
 
-  public
-    def make_png
-      filepath = "#{@basefilepath}.png"
+    def make_from_tex(ext, &block)
+      filepath = "#{@basefilepath}.#{ext}"
 
       return filepath if File.exists?(filepath)
 
       begin
-        if WikiLatexConfig::Png::GRAPHICS_SUPPORT
-          make_png_via_pdf
-        else
-          make_png_via_dvi
-        end
+        block.call
         check_file(filepath)
       ensure
         ['tex','pdf','eps','dvi','log','aux'].each do |ext|
           WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
         end
       end
+
       return filepath
+    end
+
+  public
+    def make_png
+      return make_from_tex("png") do
+        if WikiLatexConfig::Png::GRAPHICS_SUPPORT
+          make_png_via_pdf
+        else
+          make_png_via_dvi
+        end
+      end
     end
   end
 
@@ -151,10 +158,8 @@ class WikiLatexController < ApplicationController
     begin
       filepath = LatexProcessor.make_png(File.join(WikiLatexHelper::DIR, params[:image_id]))
       send_png(filepath)
-    rescue LatexProcessor::ErrorNotFound
-      render_404
-    rescue LatexProcessor::ErrorBadTex
-      render_bad_tex
+    rescue
+      handle_error
     end
   end
 
@@ -168,5 +173,15 @@ private
     return render_404 if !File.exists?(filepath)
 
     send_png filepath
+  end
+
+  def handle_error
+    begin
+      raise
+    rescue LatexProcessor::ErrorNotFound
+      render_404
+    rescue LatexProcessor::ErrorBadTex
+      render_bad_tex
+    end
   end
 end
