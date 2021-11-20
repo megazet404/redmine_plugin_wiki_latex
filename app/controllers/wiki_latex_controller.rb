@@ -216,6 +216,14 @@ class WikiLatexController < ApplicationController
   end
 
 private
+  def send_file(filepath, opts)
+    # We need this function as workaround. If we use standard 'send_file' method, then .gz extension
+    # of svg.gz file is leaked to browser via HTTP headers. And when user tries to save file, it is
+    # saved as .gz file instead of .svg.
+    data = File.open(filepath, "rb") { |f| f.read }
+    send_data data, opts
+  end
+
   def send_png(filepath)
     send_file filepath, :type => 'image/png', :disposition => 'inline'
   end
