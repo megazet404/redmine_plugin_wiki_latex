@@ -221,8 +221,14 @@ private
   end
 
   def send_svgz(filepath)
+    opts = {:type => 'image/svg+xml', :disposition => 'inline'}
+    if WikiLatexConfig::Svg::CLIENT_SIDE_DECOMPRESSION
+      response.headers["Content-Encoding"] = "gzip"
+      send_file filepath, opts
+    else
       data = Zlib::GzipReader.open(filepath) { |f| f.read }
-      send_data data, :type => 'image/svg+xml', :disposition => 'inline'
+      send_data data, opts
+    end
   end
 
   def render_bad_tex

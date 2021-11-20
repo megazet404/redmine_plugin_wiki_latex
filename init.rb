@@ -37,6 +37,13 @@ module WikiLatexConfig
   # SVG options.
   module Svg
 
+    # The plugin stores the LaTeX SVG files in gzip archives.
+    # If this option is enabled, The plugin sends the SVG files compressed,
+    # then the browser decompresses them.
+    # If the option is disabled, then the plugin decompresses the files before
+    # sending them to the browser.
+    CLIENT_SIDE_DECOMPRESSION = true
+
     # If this option is enabled, then the fonts are embedded to the SVG files.
     # If it is disabled, then all text in SVG files is presented as vectorized
     # lines.
