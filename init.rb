@@ -42,6 +42,11 @@ module WikiLatexConfig
     # lines.
     EMBED_FONT                = true
 
+    # The size of a transparent border around the LaTeX content. Since cropping
+    # the LaTeX content in SVG images is not perfect even with '-e' option of
+    # 'dvisvgm', setting this option to '0' may produce clipped SVG images.
+    BORDER                    = 1
+
     # This option can be set to 'Z' or 'c'.
     # 'Z' - first adds the border then scales SVG (the border is scaled too).
     # 'c' - first scales SVG then adds the border (the border is not scaled).

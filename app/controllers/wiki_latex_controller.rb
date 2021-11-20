@@ -173,6 +173,12 @@ class WikiLatexController < ApplicationController
             opts += (WikiLatexConfig::Svg::ZOOM_METHOD == "Z" ? " -Z" : " -c") + WikiLatexConfig::ZOOM_FACTOR.to_s
           end
 
+          # More precise bounding box calculation. TeX content may be clipped without this option.
+          opts += " -e"
+
+          # Draw transparent border around TeX content.
+          opts += " -b" + WikiLatexConfig::Svg::BORDER.to_s
+
           # Print only errors and warnings to logs.
           opts += " -v3"
 
