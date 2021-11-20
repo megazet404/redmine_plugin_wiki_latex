@@ -81,6 +81,10 @@ class WikiLatexController < ApplicationController
 
   public
     def make_png
+      filepath = "#{@basefilepath}.png"
+
+      return filepath if File.exists?(filepath)
+
       begin
         make_tex
 
@@ -92,32 +96,21 @@ class WikiLatexController < ApplicationController
           make_dvi
           run_cmd("cd #{@dir_q} && #{PATH_Q}dvipng -T tight -bg Transparent #{@name}.dvi -q -o #{@name}.png")
         end
-        check_file("#{@basefilepath}.png")
+        check_file(filepath)
       ensure
         ['tex','pdf','eps','dvi','log','aux'].each do |ext|
           WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
         end
       end
+      return filepath
     end
   end
 
   def image
-    name = params[:image_id]
-    basefilepath = File.join(WikiLatexHelper::DIR, name)
-    image_file = "#{basefilepath}.png"
+    filepath = LatexProcessor.make_png(File.join(WikiLatexHelper::DIR, params[:image_id]))
 
-    if (!File.exists?(image_file))
-    	LatexProcessor.make_png(basefilepath)
-    end
-    if (File.exists?(image_file))
-      #render :file => image_file, :layout => false, :content_type => 'image/png'
-      f = open(image_file, "rb") { |io| io.read }
-      send_data f, :type => 'image/png',:disposition => 'inline'
-
-    else
-    	render_404
-    end
-    rescue ActiveRecord::RecordNotFound
-      render_404
+    #render :file => filepath, :layout => false, :content_type => 'image/png'
+    f = open(filepath, "rb") { |io| io.read }
+    send_data f, :type => 'image/png',:disposition => 'inline'
   end
 end
