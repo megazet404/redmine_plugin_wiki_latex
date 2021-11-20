@@ -168,6 +168,11 @@ class WikiLatexController < ApplicationController
           # Unfortunately '-f svg' is broken, so we use '-f woff2'. 'ah' is auto hinting.
           opts += (WikiLatexConfig::Svg::EMBED_FONT ? " -f woff2,ah" : " -n")
 
+          if WikiLatexConfig::ZOOM_FACTOR != 1
+            # Zoom image.
+            opts += (WikiLatexConfig::Svg::ZOOM_METHOD == "Z" ? " -Z" : " -c") + WikiLatexConfig::ZOOM_FACTOR.to_s
+          end
+
           # Print only errors and warnings to logs.
           opts += " -v3"
 

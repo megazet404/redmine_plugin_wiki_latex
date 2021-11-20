@@ -42,6 +42,11 @@ module WikiLatexConfig
     # lines.
     EMBED_FONT                = true
 
+    # This option can be set to 'Z' or 'c'.
+    # 'Z' - first adds the border then scales SVG (the border is scaled too).
+    # 'c' - first scales SVG then adds the border (the border is not scaled).
+    ZOOM_METHOD               = "Z"
+
     # It seems that 'dvisvgm' is not "thread" safe. If multiple instances run
     # simultaneously, they cannot create temporary files sometimes.
     # If this option is enabled, the plugin creates a separate temporary
