@@ -1,5 +1,7 @@
 class WikiLatexController < ApplicationController
   class LatexProcessor
+    class ErrorNotFound < StandardError; end
+
     def self.make_png(basefilepath)
       LatexProcessor.new(basefilepath).make_png()
     end
@@ -15,6 +17,7 @@ class WikiLatexController < ApplicationController
       @dir_q        = LatexProcessor.quote(@dir)
 
       @latex = WikiLatex.find_by_image_id(@name)
+      raise ErrorNotFound if !@latex
     end
 
   private
@@ -107,10 +110,14 @@ class WikiLatexController < ApplicationController
   end
 
   def image
-    filepath = LatexProcessor.make_png(File.join(WikiLatexHelper::DIR, params[:image_id]))
+    begin
+      filepath = LatexProcessor.make_png(File.join(WikiLatexHelper::DIR, params[:image_id]))
 
-    #render :file => filepath, :layout => false, :content_type => 'image/png'
-    f = open(filepath, "rb") { |io| io.read }
-    send_data f, :type => 'image/png',:disposition => 'inline'
+      #render :file => filepath, :layout => false, :content_type => 'image/png'
+      f = open(filepath, "rb") { |io| io.read }
+      send_data f, :type => 'image/png',:disposition => 'inline'
+    rescue LatexProcessor::ErrorNotFound
+      render_404
+    end
   end
 end
