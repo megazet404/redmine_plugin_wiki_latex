@@ -7,8 +7,8 @@ class WikiLatexController < ApplicationController
       LatexProcessor.new(basefilepath).make_png()
     end
 
-    def self.make_svg(basefilepath)
-      LatexProcessor.new(basefilepath).make_svg()
+    def self.make_svgz(basefilepath)
+      LatexProcessor.new(basefilepath).make_svgz()
     end
 
     def self.quote(str)
@@ -157,8 +157,8 @@ class WikiLatexController < ApplicationController
       end
     end
 
-    def make_svg
-      return make_from_tex("svg") do
+    def make_svgz
+      return make_from_tex("svg.gz") do
         make_dvi
 
         # Compose command line options.
@@ -179,6 +179,9 @@ class WikiLatexController < ApplicationController
           # Draw transparent border around TeX content.
           opts += " -b" + WikiLatexConfig::Svg::BORDER.to_s
 
+          # Gzip resulting SVG to save disk space.
+          opts += " -z"
+
           # Print only errors and warnings to logs.
           opts += " -v3"
 
@@ -189,7 +192,7 @@ class WikiLatexController < ApplicationController
           end
         end
 
-        run_cmd("cd #{@dir_q} && #{PATH_Q}dvisvgm #{opts} #{@name}.dvi")
+        run_cmd("cd #{@dir_q} && #{PATH_Q}dvisvgm #{opts} #{@name}.dvi -o #{@name}.svg.gz")
       end
     end
   end
@@ -205,8 +208,8 @@ class WikiLatexController < ApplicationController
 
   def image_svg
     begin
-      filepath = LatexProcessor.make_svg(File.join(WikiLatexHelper::DIR, params[:image_id]))
-      send_svg(filepath)
+      filepath = LatexProcessor.make_svgz(File.join(WikiLatexHelper::DIR, params[:image_id]))
+      send_svgz(filepath)
     rescue
       handle_error
     end
@@ -217,8 +220,9 @@ private
     send_file filepath, :type => 'image/png', :disposition => 'inline'
   end
 
-  def send_svg(filepath)
-    send_file filepath, :type => 'image/svg+xml', :disposition => 'inline'
+  def send_svgz(filepath)
+      data = Zlib::GzipReader.open(filepath) { |f| f.read }
+      send_data data, :type => 'image/svg+xml', :disposition => 'inline'
   end
 
   def render_bad_tex
