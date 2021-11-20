@@ -20,6 +20,15 @@ class WikiLatexController < ApplicationController
   private
     PATH_Q = quote(WikiLatexConfig::TOOLS_PATH == "" ? "" : File.join(WikiLatexConfig::TOOLS_PATH, ""))
 
+    def run_cmd(cmd)
+      success = system(cmd)
+      raise "failed to run: #{cmd}" if !success
+    end
+
+    def check_file(filepath)
+      raise "file was not created: #{filepath}" if !File.exists?(filepath)
+    end
+
     def make_tex
       FileUtils.mkdir_p(@dir)
 
@@ -32,7 +41,7 @@ class WikiLatexController < ApplicationController
       end
     end
 
-    def run_latex(tool)
+    def run_latex(tool, ext)
       make_tex
 
       # Compose command line options.
@@ -51,33 +60,43 @@ class WikiLatexController < ApplicationController
           # Print only errors to logs.
           opts += " -quiet"
         end
+
+        # If there are any errors in LaTeX source then 'latex' exits with error code
+        # even if the errors were automatically fixed. We check for error codes,
+        # so it doesn't make sense for us to continue after error.
+        opts += " -halt-on-error"
       end
 
-      system("cd #{@dir_q} && #{PATH_Q}#{tool} #{opts} #{@name}.tex")
+      run_cmd("cd #{@dir_q} && #{PATH_Q}#{tool} #{opts} #{@name}.tex")
+      check_file("#{@basefilepath}.#{ext}")
     end
 
     def make_pdf
-      run_latex("pdflatex")
+      run_latex("pdflatex", "pdf")
     end
 
     def make_dvi
-      run_latex("latex")
+      run_latex("latex", "dvi")
     end
 
   public
     def make_png
-      make_tex
+      begin
+        make_tex
 
-      if WikiLatexConfig::Png::GRAPHICS_SUPPORT
-        make_pdf
-        system("cd #{@dir_q} && #{PATH_Q}pdftops -eps #{@name}.pdf")
-        system("cd #{@dir_q} && #{PATH_Q}convert -density 100 #{@name}.eps #{@name}.png")
-      else
-        make_dvi
-        system("cd #{@dir_q} && #{PATH_Q}dvipng -T tight -bg Transparent #{@name}.dvi -q -o #{@name}.png")
-      end
-      ['tex','pdf','eps','dvi','log','aux'].each do |ext|
-        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
+        if WikiLatexConfig::Png::GRAPHICS_SUPPORT
+          make_pdf
+          run_cmd("cd #{@dir_q} && #{PATH_Q}pdftops -eps #{@name}.pdf")
+          run_cmd("cd #{@dir_q} && #{PATH_Q}convert -density 100 #{@name}.eps #{@name}.png")
+        else
+          make_dvi
+          run_cmd("cd #{@dir_q} && #{PATH_Q}dvipng -T tight -bg Transparent #{@name}.dvi -q -o #{@name}.png")
+        end
+        check_file("#{@basefilepath}.png")
+      ensure
+        ['tex','pdf','eps','dvi','log','aux'].each do |ext|
+          WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
+        end
       end
     end
   end
