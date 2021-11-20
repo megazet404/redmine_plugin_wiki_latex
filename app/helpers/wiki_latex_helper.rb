@@ -43,6 +43,13 @@ module WikiLatexHelper
       # Do we really need this processing??????
       full_source.gsub!('\\\\','\\')
 
+      image_id = Digest::SHA256.hexdigest(full_source)
+
+      @latex = WikiLatex.find_by_image_id(image_id)
+      if (@latex)
+        return
+      end
+
       if full_source.include?  ('|||||')
         ary = full_source.split('|||||')
         preamble = ary[0]
@@ -52,13 +59,8 @@ module WikiLatexHelper
         source   = full_source
       end
 
-      name = Digest::SHA256.hexdigest(full_source)
-
-      @latex = WikiLatex.find_by_image_id(name)
-      if !@latex
-        @latex = WikiLatex.new(:source => source, :image_id => name, :preamble => preamble)
-        @latex.save
-      end
+      @latex = WikiLatex.new(:image_id => image_id, :preamble => preamble, :source => source)
+      @latex.save
     end
 
   private
