@@ -69,14 +69,6 @@ module WikiLatexHelper
   end
 
   class Macro
-    def self.render_inline(source, view)
-      Macro.new(:source => source).render_inline(view)
-    end
-
-    def self.render_block(project, page, view)
-      Macro.new(:project => project, :page => page).render_block(view)
-    end
-
     def initialize(params)
       # Retrieve full_source from params.
       begin
@@ -90,6 +82,7 @@ module WikiLatexHelper
           raise 'circular inclusion detected' if @included_wiki_pages.include?(@page.title)
           @included_wiki_pages << @page.title
           @included_wiki_pages.pop
+
           full_source = @page.content.text
         end
       end
@@ -184,6 +177,14 @@ module WikiLatexHelper
       content += render_header  (view)
       content += render_template(view, "macro_block", {:image_id => @image_id, :preamble => @preamble, :source => @source, :page => @page})
       content.html_safe
+    end
+
+    def self.render_inline(source, view)
+      Macro.new(:source => source).render_inline(view)
+    end
+
+    def self.render_block(project, page, view)
+      Macro.new(:project => project, :page => page).render_block(view)
     end
   end
 end
