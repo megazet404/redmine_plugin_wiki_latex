@@ -31,6 +31,10 @@ module WikiLatexHelper
     end
   end
 
+  def self.clear_db
+    WikiLatex.destroy_all
+  end
+
   class Macro
     def self.render_inline(source, view)
       Macro.new(:source => source).render_inline(view)
