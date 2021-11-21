@@ -175,6 +175,41 @@ private
     end
   end
 
+  def make_from_tex(ext, &block)
+    image_id       = params[:image_id]
+    basefilepath   = File.join(WikiLatexHelper::DIR, image_id)
+    image_filepath = "#{basefilepath}.#{ext}"
+    tex_filepath   = "#{basefilepath}.tex"
+
+    return image_filepath if File.exists?(image_filepath)
+
+    if WikiLatexConfig::STORE_LATEX_IN_DB
+      latex = WikiLatex.find_by_image_id(image_id)
+      raise ErrorNotFound if !latex
+    else
+      raise ErrorNotFound if !File.exists?(tex_filepath)
+    end
+
+    WikiLatexHelper::lock("#{basefilepath}.lock") do
+      # Check again under lock.
+      return image_filepath if File.exists?(image_filepath)
+
+      if latex
+        WikiLatexHelper::make_tex(basefilepath, latex.preamble, latex.source)
+      end
+
+      begin
+        block.call(basefilepath)
+      rescue
+        # Remove possiblly buggy tex.
+        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf(tex_filepath) }
+        raise
+      end
+    end
+
+    return image_filepath
+  end
+
   def send_file(filepath, opts)
     # We need this function as workaround. If we use standard 'send_file' method, then .gz extension
     # of svg.gz file is leaked to browser via HTTP headers. And when user tries to save file, it is
@@ -213,41 +248,6 @@ private
     rescue ErrorBadTex
       render_bad_tex
     end
-  end
-
-  def make_from_tex(ext, &block)
-    image_id       = params[:image_id]
-    basefilepath   = File.join(WikiLatexHelper::DIR, image_id)
-    image_filepath = "#{basefilepath}.#{ext}"
-    tex_filepath   = "#{basefilepath}.tex"
-
-    return image_filepath if File.exists?(image_filepath)
-
-    if WikiLatexConfig::STORE_LATEX_IN_DB
-      latex = WikiLatex.find_by_image_id(image_id)
-      raise ErrorNotFound if !latex
-    else
-      raise ErrorNotFound if !File.exists?(tex_filepath)
-    end
-
-    WikiLatexHelper::lock("#{basefilepath}.lock") do
-      # Check again under lock.
-      return image_filepath if File.exists?(image_filepath)
-
-      if latex
-        WikiLatexHelper::make_tex(basefilepath, latex.preamble, latex.source)
-      end
-
-      begin
-        block.call(basefilepath)
-      rescue
-        # Remove possiblly buggy tex.
-        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf(tex_filepath) }
-        raise
-      end
-    end
-
-    return image_filepath
   end
 
 public
