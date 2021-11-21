@@ -8,8 +8,8 @@ module WikiLatexConfig
 
   # If this option is enabled, the LaTeX sources are stored in the database.
   # If it is disabled, the LaTeX sources are stored in files.
-  # Note that the files and the database entries are not deleted when the
-  # LaTeX formulas are no longer in use (deleted from a wiki page). So you have
+  # Note that the files and the database entries are not deleted when the LaTeX
+  # expressions are no longer in use (deleted from a wiki page). So you have
   # to delete them manually periodically. It safe to delete all files in the
   # tmp/wiki_latex/ directory. If you set this option to true, you have to
   # delete the database entries as well.
@@ -34,7 +34,8 @@ module WikiLatexConfig
   # except errors.
   LATEX_QUIET          = false
 
-  # Use this option to make LaTeX formulas bigger or smaller.
+  # Use this option to make rendered LaTeX images and all content on them bigger
+  # or smaller.
   ZOOM_FACTOR          = 1.0
 
   # PNG options.
