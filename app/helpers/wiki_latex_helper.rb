@@ -32,7 +32,8 @@ module WikiLatexHelper
   end
 
   def self.clear_db
-    WikiLatex.destroy_all
+   #WikiLatex.destroy_all # It's too slow.
+    WikiLatex.delete_all
   end
 
   class Macro
