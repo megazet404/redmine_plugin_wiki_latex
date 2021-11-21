@@ -118,17 +118,17 @@ end
 Rails.logger.info 'Starting wiki_latex for Redmine'
 
 Redmine::Plugin.register :wiki_latex do
-  name 'Latex Wiki-macro Plugin'
-  author 'Nils Israel & Christopher Wilson'
-  description 'Render latex images'
-  version '0.1.0'
+  name        'wiki latex'
+  author      'Nils Israel & Herman Fries & Paul Morelle & Christopher Wilson & megazet404'
+  description 'Render images in Wiki from LaTeX expressions'
+  version     '0.1.0'
 
   Redmine::WikiFormatting::Macros.register do
     desc <<'EOF'
 Latex Plugin
 {{latex(place inline latex code here)}}
 
-Don't use curly braces. '
+Don't use curly braces.
 EOF
     macro :latex, {:parse_args => false} do |wiki_content_obj, args, text|
       latex_source_code = get_macro_content(args, text)
