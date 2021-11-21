@@ -152,6 +152,19 @@ module WikiLatexHelper
     end
 
   private
+    def wa_embed_inline(view)
+      # Link CSS to the page if it is not linked yet.
+      if !view.instance_variable_get("@wiki_latex_css_linked")
+        view.content_for :header_tags do
+          view.stylesheet_link_tag "wiki_latex.css", :plugin => "wiki_latex", :media => :all
+        end
+        view.instance_variable_set("@wiki_latex_css_linked", true)
+      end
+      # Insert latex image to the page.
+      "<img class='latexinline' src='#{view.url_for(:controller => 'wiki_latex', :action => 'image_svg', :image_id => @image_id)}' alt='#{@source}' />"
+        .html_safe
+    end
+
     def render_template(view, template, locals)
       view.controller.render_to_string(:template => "wiki_latex/#{template}", :layout => false, :locals => locals)
     end
@@ -162,6 +175,10 @@ module WikiLatexHelper
 
   public
     def render_inline(view)
+      if WikiLatexConfig::Wa::DIRECT_EMBED
+        return wa_embed_inline(view)
+      end
+
       content =  ""
       content += render_header  (view)
       content += render_template(view, "macro_inline", {:image_id => @image_id, :preamble => @preamble, :source => @source})
@@ -169,6 +186,10 @@ module WikiLatexHelper
     end
 
     def render_block(view)
+      if WikiLatexConfig::Wa::DIRECT_EMBED
+        raise "macro is unsupported"
+      end
+
       content =  ""
       content += render_header  (view)
       content += render_template(view, "macro_block", {:image_id => @image_id, :preamble => @preamble, :source => @source, :page => @page})

@@ -84,6 +84,11 @@ module WikiLatexConfig
   # Workarounds.
   module Wa
 
+    # In older Redmine versions, rendering latex macros with ERB templates
+    # breaks the page. Enabling this WA makes rendering latex macros directly
+    # in Ruby code.
+    DIRECT_EMBED = false
+
     # For some reasons, 'content_for' doesn't work without using the "view"
     # object in the wiki_latex ERB template. The wiki_latex CSS is not linked
     # to the page because of that. This WA makes using 'view' explicitly for
