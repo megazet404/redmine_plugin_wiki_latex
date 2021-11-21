@@ -108,15 +108,6 @@ module WikiLatexHelper
         full_source.gsub!('\\\\','\\')
       end
 
-      # Get image ID from full_source.
-      begin
-        @image_id = Digest::SHA256.hexdigest(full_source)
-
-        # We need to encode string to default encoding, because the function above generates binary
-        # string, and some DBMSes (SQLite for example) do not work well with binary strings.
-        @image_id.encode!()
-      end
-
       # Split full_source.
       begin
         if full_source.include?  ('|||||')
@@ -127,6 +118,15 @@ module WikiLatexHelper
           @preamble = ""
           @source   = full_source
         end
+      end
+
+      # Get image ID from full_source.
+      begin
+        @image_id = Digest::SHA256.hexdigest(full_source)
+
+        # We need to encode string to default encoding, because the function above generates binary
+        # string, and some DBMSes (SQLite for example) do not work well with binary strings.
+        @image_id.encode!()
       end
 
       # Save source.
