@@ -127,17 +127,22 @@ class WikiLatexController < ApplicationController
 
       return filepath if File.exists?(filepath)
 
-      begin
-        block.call
-        check_file(filepath)
-      rescue
-        # Remove possiblly buggy tex.
-        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.tex") }
-        raise
-      ensure
-        # Clean up.
-        ['pdf','eps','dvi','log','aux','tmp'].each do |ext|
-          WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
+      WikiLatexHelper::lock("#{@basefilepath}.lock") do
+        # Check again under lock.
+        return filepath if File.exists?(filepath)
+
+        begin
+          block.call
+          check_file(filepath)
+        rescue
+          # Remove possiblly buggy tex.
+          WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.tex") }
+          raise
+        ensure
+          # Clean up.
+          ['pdf','eps','dvi','log','aux','tmp'].each do |ext|
+            WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
+          end
         end
       end
 
