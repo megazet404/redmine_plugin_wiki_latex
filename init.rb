@@ -20,6 +20,11 @@ module WikiLatexConfig
   # are regenerated when the pages with the LaTeX macros are requested.
   CLEAN_FILES_ON_START = false
 
+  # If this option is enabled, the data base entries containing the LaTeX sources
+  # are removed at Redmine startup. If STORE_LATEX_IN_DB is enabled, the entries
+  # are regenerated when the pages with the LaTeX macros are requested.
+  CLEAN_DB_ON_START    = false
+
   # If this option is enabled, then all 'latex'/'pdflatex' output messages are
   # suppressed.
   LATEX_NO_OUTPUT      = false
@@ -136,6 +141,10 @@ EOF
       WikiLatexHelper::Macro.render_block(@project, page_title, self)
     end
   end
+end
+
+if WikiLatexConfig::CLEAN_DB_ON_START
+  WikiLatexHelper::clear_db
 end
 
 if WikiLatexConfig::CLEAN_FILES_ON_START
