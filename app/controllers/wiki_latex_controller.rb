@@ -3,14 +3,6 @@ class WikiLatexController < ApplicationController
   class ErrorBadTex   < StandardError; end
 
   class LatexProcessor
-    def self.make_png(basefilepath)
-      LatexProcessor.new(basefilepath).make_png()
-    end
-
-    def self.make_svgz(basefilepath)
-      LatexProcessor.new(basefilepath).make_svgz()
-    end
-
     def self.quote(str)
       (str == "" ? "" : '"' + str + '"')
     end
@@ -171,6 +163,14 @@ class WikiLatexController < ApplicationController
       ensure
         cleanup
       end
+    end
+
+    def self.make_png(basefilepath)
+      LatexProcessor.new(basefilepath).make_png()
+    end
+
+    def self.make_svgz(basefilepath)
+      LatexProcessor.new(basefilepath).make_svgz()
     end
   end
 
