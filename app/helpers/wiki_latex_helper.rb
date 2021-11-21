@@ -16,10 +16,10 @@ module WikiLatexHelper
     end
   end
 
-  def self.lock(filepath, &block)
+  def self.lock(lockfile_path, &block)
     begin
-      FileUtils.mkdir_p(File.dirname(filepath))
-      File.open(filepath, 'wb') do |lock|
+      FileUtils.mkdir_p(File.dirname(lockfile_path))
+      File.open(lockfile_path, 'wb') do |lock|
         lock.flock(File::LOCK_EX)
         block.call
       end
@@ -36,15 +36,15 @@ module WikiLatexHelper
   end
 
   def self.make_tex(image_id, preamble, source, locked = false)
-    basefilepath = File.join(DIR, image_id)
-    filepath  = "#{basefilepath}.tex"
+    path_base = File.join(DIR, image_id)
+    path_tex  = "#{path_base}.tex"
 
     make = -> do
-      return if File.exist?(filepath)
+      return if File.exist?(path_tex)
 
       FileUtils.mkdir_p(DIR)
 
-      File.open(filepath, 'wb') do |f|
+      File.open(path_tex, 'wb') do |f|
         f.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
         f.print(preamble, "\n") if !preamble.empty?
         f.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
@@ -54,8 +54,8 @@ module WikiLatexHelper
     end
 
     if locked
-      return if File.exist?(filepath)
-      lock("#{basefilepath}.lock") do
+      return if File.exist?(path_tex)
+      lock("#{path_base}.lock") do
         make.call
       end
     else
