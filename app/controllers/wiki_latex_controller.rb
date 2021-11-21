@@ -175,10 +175,10 @@ private
     end
   end
 
-  def make_from_tex(ext, &block)
+  def make_from_tex(image_ext, &block)
     image_id   = params[:image_id]
     path_base  = File.join(WikiLatexHelper::DIR, image_id)
-    path_image = "#{path_base}.#{ext}"
+    path_image = "#{path_base}.#{image_ext}"
     path_tex   = "#{path_base}.tex"
 
     return path_image if File.exists?(path_image)
