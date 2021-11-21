@@ -210,6 +210,18 @@ private
     return image_filepath
   end
 
+  def make_png
+    return make_from_tex("png") do |basefilepath|
+      LatexProcessor.make_png(basefilepath)
+    end
+  end
+
+  def make_svgz
+    return make_from_tex("svg.gz") do |basefilepath|
+      LatexProcessor.make_svgz(basefilepath)
+    end
+  end
+
   def send_file(filepath, opts)
     # We need this function as workaround. If we use standard 'send_file' method, then .gz extension
     # of svg.gz file is leaked to browser via HTTP headers. And when user tries to save file, it is
@@ -253,10 +265,8 @@ private
 public
   def image_png
     begin
-      filepath = make_from_tex("png") do |basefilepath|
-        LatexProcessor.make_png(basefilepath)
-      end
-      send_png(filepath)
+      filepath = make_png
+      send_png filepath
     rescue
       handle_error
     end
@@ -264,10 +274,8 @@ public
 
   def image_svg
     begin
-      filepath = make_from_tex("svg.gz") do |basefilepath|
-        LatexProcessor.make_svgz(basefilepath)
-      end
-      send_svgz(filepath)
+      filepath = make_svgz
+      send_svgz filepath
     rescue
       handle_error
     end
