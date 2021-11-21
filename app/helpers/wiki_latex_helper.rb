@@ -73,17 +73,19 @@ module WikiLatexHelper
 
       # Get image ID from full_source.
       begin
-        image_id = Digest::SHA256.hexdigest(full_source)
+        @image_id = Digest::SHA256.hexdigest(full_source)
 
         # We need to encode string to default encoding, because the function above generates binary
         # string, and some DBMSes (SQLite for example) do not work well with binary strings.
-        image_id.encode!()
+        @image_id.encode!()
       end
 
       # Try fetch source from DB.
       begin
-        @latex = WikiLatex.find_by_image_id(image_id)
-        if (@latex)
+        latex = WikiLatex.find_by_image_id(@image_id)
+        if (latex)
+          @preamble = latex.preamble
+          @source   = latex.source
           return
         end
       end
@@ -92,18 +94,17 @@ module WikiLatexHelper
       begin
         if full_source.include?  ('|||||')
           ary = full_source.split('|||||')
-          preamble = ary[0]
-          source   = ary[1]
+          @preamble = ary[0]
+          @source   = ary[1]
         else
-          preamble = ""
-          source   = full_source
+          @preamble = ""
+          @source   = full_source
         end
       end
 
       # Save source.
       begin
-        @latex = WikiLatex.new(:image_id => image_id, :preamble => preamble, :source => source)
-        @latex.save
+        WikiLatex.new(:image_id => @image_id, :preamble => @preamble, :source => @source).save
       end
     end
 
@@ -120,14 +121,14 @@ module WikiLatexHelper
     def render_inline(view)
       content =  ""
       content += render_header  (view)
-      content += render_template(view, "macro_inline", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source})
+      content += render_template(view, "macro_inline", {:image_id => @image_id, :preamble => @preamble, :source => @source})
       content.html_safe
     end
 
     def render_block(view)
       content =  ""
       content += render_header  (view)
-      content += render_template(view, "macro_block", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source, :page => @page})
+      content += render_template(view, "macro_block", {:image_id => @image_id, :preamble => @preamble, :source => @source, :page => @page})
       content.html_safe
     end
   end
