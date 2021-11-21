@@ -111,32 +111,28 @@ class WikiLatexController < ApplicationController
       run_cmd("cd #{@dir_q} && #{PATH_Q}dvipng #{opts} #{@name}.dvi -o #{@name}.png")
     end
 
-    def make_from_tex(ext, &block)
-      filepath = "#{@basefilepath}.#{ext}"
-      begin
-        block.call
-        check_file(filepath)
-      ensure
-        # Clean up.
-        ['pdf','eps','dvi','log','aux','tmp'].each do |ext|
-          WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
-        end
+    def cleanup
+      ['pdf','eps','dvi','log','aux','tmp'].each do |ext|
+        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
       end
     end
 
   public
     def make_png
-      return make_from_tex("png") do
+      begin
         if WikiLatexConfig::Png::GRAPHICS_SUPPORT
           make_png_via_pdf
         else
           make_png_via_dvi
         end
+        check_file("#{@basefilepath}.png")
+      ensure
+        cleanup
       end
     end
 
     def make_svgz
-      return make_from_tex("svg.gz") do
+      begin
         make_dvi
 
         # Compose command line options.
@@ -171,6 +167,9 @@ class WikiLatexController < ApplicationController
         end
 
         run_cmd("cd #{@dir_q} && #{PATH_Q}dvisvgm #{opts} #{@name}.dvi -o #{@name}.svg.gz")
+        check_file("#{@basefilepath}.svg.gz")
+      ensure
+        cleanup
       end
     end
   end
