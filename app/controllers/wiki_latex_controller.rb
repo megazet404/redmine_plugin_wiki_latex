@@ -1,16 +1,9 @@
 class WikiLatexController < ApplicationController
+private
   class ErrorNotFound < StandardError; end
   class ErrorBadTex   < StandardError; end
 
   class LatexProcessor
-    def self.make_png(basefilepath)
-      LatexProcessor.new(basefilepath).make_png()
-    end
-
-    def self.make_svgz(basefilepath)
-      LatexProcessor.new(basefilepath).make_svgz()
-    end
-
     def self.quote(str)
       (str == "" ? "" : '"' + str + '"')
     end
@@ -172,31 +165,63 @@ class WikiLatexController < ApplicationController
         cleanup
       end
     end
-  end
 
-  def image_png
-    begin
-      filepath = make_from_tex("png") do |basefilepath|
-        LatexProcessor.make_png(basefilepath)
-      end
-      send_png(filepath)
-    rescue
-      handle_error
+    def self.make_png(basefilepath)
+      LatexProcessor.new(basefilepath).make_png()
+    end
+
+    def self.make_svgz(basefilepath)
+      LatexProcessor.new(basefilepath).make_svgz()
     end
   end
 
-  def image_svg
-    begin
-      filepath = make_from_tex("svg.gz") do |basefilepath|
-        LatexProcessor.make_svgz(basefilepath)
+  def make_from_tex(ext, &block)
+    image_id       = params[:image_id]
+    basefilepath   = File.join(WikiLatexHelper::DIR, image_id)
+    image_filepath = "#{basefilepath}.#{ext}"
+    tex_filepath   = "#{basefilepath}.tex"
+
+    return image_filepath if File.exists?(image_filepath)
+
+    if WikiLatexConfig::STORE_LATEX_IN_DB
+      latex = WikiLatex.find_by_image_id(image_id)
+      raise ErrorNotFound if !latex
+    else
+      raise ErrorNotFound if !File.exists?(tex_filepath)
+    end
+
+    WikiLatexHelper::lock("#{basefilepath}.lock") do
+      # Check again under lock.
+      return image_filepath if File.exists?(image_filepath)
+
+      if latex
+        WikiLatexHelper::make_tex(basefilepath, latex.preamble, latex.source)
       end
-      send_svgz(filepath)
-    rescue
-      handle_error
+
+      begin
+        block.call(basefilepath)
+      rescue
+        # Remove possiblly buggy tex.
+        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf(tex_filepath) }
+        raise
+      end
+    end
+
+    return image_filepath
+  end
+
+  def make_png
+    return make_from_tex("png") do |basefilepath|
+      LatexProcessor.make_png(basefilepath)
     end
   end
 
-private
+  def make_svgz
+    return make_from_tex("svg.gz") do |basefilepath|
+      LatexProcessor.make_svgz(basefilepath)
+    end
+  end
+
   def send_file(filepath, opts)
     # We need this function as workaround. If we use standard 'send_file' method, then .gz extension
     # of svg.gz file is leaked to browser via HTTP headers. And when user tries to save file, it is
@@ -237,38 +262,22 @@ private
     end
   end
 
-  def make_from_tex(ext, &block)
-    image_id       = params[:image_id]
-    basefilepath   = File.join(WikiLatexHelper::DIR, image_id)
-    image_filepath = "#{basefilepath}.#{ext}"
-    tex_filepath   = "#{basefilepath}.tex"
-
-    return image_filepath if File.exists?(image_filepath)
-
-    if WikiLatexConfig::STORE_LATEX_IN_DB
-      latex = WikiLatex.find_by_image_id(image_id)
-      raise ErrorNotFound if !latex
-    else
-      raise ErrorNotFound if !File.exists?(tex_filepath)
+public
+  def image_png
+    begin
+      filepath = make_png
+      send_png filepath
+    rescue
+      handle_error
     end
+  end
 
-    WikiLatexHelper::lock("#{basefilepath}.lock") do
-      # Check again under lock.
-      return image_filepath if File.exists?(image_filepath)
-
-      if latex
-        WikiLatexHelper::make_tex(basefilepath, latex.preamble, latex.source)
-      end
-
-      begin
-        block.call(basefilepath)
-      rescue
-        # Remove possiblly buggy tex.
-        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf(tex_filepath) }
-        raise
-      end
+  def image_svg
+    begin
+      filepath = make_svgz
+      send_svgz filepath
+    rescue
+      handle_error
     end
-
-    return image_filepath
   end
 end
