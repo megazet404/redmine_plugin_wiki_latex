@@ -22,6 +22,7 @@ module WikiLatexHelper
     FileUtils.mkdir_p(File.dirname(filepath))
 
     File.open(filepath, 'wb') do |f|
+      # Should we use absolute path in include?
       f.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
       f.print(preamble, "\n") if !preamble.empty?
       f.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
