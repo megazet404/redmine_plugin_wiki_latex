@@ -17,12 +17,15 @@ class WikiLatexController < ApplicationController
 
     def initialize(basefilepath)
       @basefilepath = basefilepath
-      @dir          = File.dirname (@basefilepath)
-      @name         = File.basename(@basefilepath)
-      @dir_q        = LatexProcessor.quote(@dir)
+      @dir_q        = LatexProcessor.quote(File.dirname (@basefilepath))
+      @name         =                      File.basename(@basefilepath)
 
-      @latex = WikiLatex.find_by_image_id(@name)
-      raise ErrorNotFound if !@latex
+      if WikiLatexConfig::STORE_LATEX_IN_DB
+        @latex = WikiLatex.find_by_image_id(@name)
+        raise ErrorNotFound if !@latex
+      else
+        raise ErrorNotFound if !File.exists?("#{@basefilepath}.tex")
+      end
     end
 
   private
@@ -37,20 +40,10 @@ class WikiLatexController < ApplicationController
       raise "file was not created: #{filepath}" if !File.exists?(filepath)
     end
 
-    def make_tex
-      FileUtils.mkdir_p(@dir)
-
-      File.open(@basefilepath+".tex", 'wb') do |f|
-        f.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
-        f.print(@latex.preamble, "\n") if !@latex.preamble.empty?
-        f.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
-        f.print(@latex.source  , "\n") if !@latex.source.empty?
-        f.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
-      end
-    end
-
     def run_latex(tool, ext)
-      make_tex
+      if @latex
+        WikiLatexHelper::make_tex(@basefilepath, @latex.preamble, @latex.source)
+      end
 
       # Compose command line options.
       opts = ""
@@ -137,8 +130,13 @@ class WikiLatexController < ApplicationController
       begin
         block.call
         check_file(filepath)
+      rescue
+        # Remove possiblly buggy tex.
+        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.tex") }
+        raise
       ensure
-        ['tex','pdf','eps','dvi','log','aux','tmp'].each do |ext|
+        # Clean up.
+        ['pdf','eps','dvi','log','aux','tmp'].each do |ext|
           WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
         end
       end

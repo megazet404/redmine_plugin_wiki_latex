@@ -6,6 +6,15 @@ module WikiLatexConfig
   # If it is empty, the tools are searched in the PATH environment variable.
   TOOLS_PATH           = ""
 
+  # If this option is enabled, the LaTeX sources are stored in the database.
+  # If it is disabled, the LaTeX sources are stored in files.
+  # Note that the files and the database entries are not deleted when the
+  # LaTeX formulas are no longer in use (deleted from a wiki page). So you have
+  # to delete them manually periodically. It safe to delete all files in the
+  # tmp/wiki_latex/ directory. If you set this option to true, you have to
+  # delete the database entries as well.
+  STORE_LATEX_IN_DB    = false
+
   # If this option is enable, the tmp/wiki_latex/ directory is removed at Redmine
   # startup. The directory contains LaTeX sources and cached LaTeX images. They
   # are regenerated when the pages with the LaTeX macros are requested.
@@ -134,7 +143,7 @@ if WikiLatexConfig::CLEAN_FILES_ON_START
 else
   # Remove possible garbage.
   dir = File.join(WikiLatexHelper::DIR, "")
-  ['tex','pdf','eps','dvi','log','aux','tmp'].each do |ext|
+  ['pdf','eps','dvi','log','aux','tmp'].each do |ext|
     WikiLatexHelper::rm_rf(Dir.glob("#{dir}*.#{ext}"))
   end
 end

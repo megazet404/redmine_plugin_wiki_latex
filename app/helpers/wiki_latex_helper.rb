@@ -16,6 +16,21 @@ module WikiLatexHelper
     end
   end
 
+  def self.make_tex(basefilepath, preamble, source)
+    filepath = "#{basefilepath}.tex"
+
+    FileUtils.mkdir_p(File.dirname(filepath))
+
+    File.open(filepath, 'wb') do |f|
+      # Should we use absolute path in include?
+      f.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
+      f.print(preamble, "\n") if !preamble.empty?
+      f.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
+      f.print(source  , "\n") if !source.empty?
+      f.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
+    end
+  end
+
   class Macro
     def self.render_inline(source, view)
       Macro.new(:source => source).render_inline(view)
@@ -58,18 +73,22 @@ module WikiLatexHelper
 
       # Get image ID from full_source.
       begin
-        image_id = Digest::SHA256.hexdigest(full_source)
+        @image_id = Digest::SHA256.hexdigest(full_source)
 
         # We need to encode string to default encoding, because the function above generates binary
         # string, and some DBMSes (SQLite for example) do not work well with binary strings.
-        image_id.encode!()
+        @image_id.encode!()
       end
 
       # Try fetch source from DB.
       begin
-        @latex = WikiLatex.find_by_image_id(image_id)
-        if (@latex)
-          return
+        if WikiLatexConfig::STORE_LATEX_IN_DB
+          latex = WikiLatex.find_by_image_id(@image_id)
+          if (latex)
+            @preamble = latex.preamble
+            @source   = latex.source
+            return
+          end
         end
       end
 
@@ -77,18 +96,21 @@ module WikiLatexHelper
       begin
         if full_source.include?  ('|||||')
           ary = full_source.split('|||||')
-          preamble = ary[0]
-          source   = ary[1]
+          @preamble = ary[0]
+          @source   = ary[1]
         else
-          preamble = ""
-          source   = full_source
+          @preamble = ""
+          @source   = full_source
         end
       end
 
       # Save source.
       begin
-        @latex = WikiLatex.new(:image_id => image_id, :preamble => preamble, :source => source)
-        @latex.save
+        if WikiLatexConfig::STORE_LATEX_IN_DB
+          WikiLatex.new(:image_id => @image_id, :preamble => @preamble, :source => @source).save
+        else
+          WikiLatexHelper::make_tex(File.join(DIR, @image_id), @preamble, @source)
+        end
       end
     end
 
@@ -105,14 +127,14 @@ module WikiLatexHelper
     def render_inline(view)
       content =  ""
       content += render_header  (view)
-      content += render_template(view, "macro_inline", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source})
+      content += render_template(view, "macro_inline", {:image_id => @image_id, :preamble => @preamble, :source => @source})
       content.html_safe
     end
 
     def render_block(view)
       content =  ""
       content += render_header  (view)
-      content += render_template(view, "macro_block", {:image_id => @latex.image_id, :preamble => @latex.preamble, :source => @latex.source, :page => @page})
+      content += render_template(view, "macro_block", {:image_id => @image_id, :preamble => @preamble, :source => @source, :page => @page})
       content.html_safe
     end
   end
