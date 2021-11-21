@@ -8,10 +8,10 @@ private
       (str == "" ? "" : '"' + str + '"')
     end
 
-    def initialize(basefilepath)
-      @basefilepath = basefilepath
-      @dir_q        = LatexProcessor.quote(File.dirname (@basefilepath))
-      @name         =                      File.basename(@basefilepath)
+    def initialize(filepath_base)
+      @filepath_base = filepath_base
+      @dir_q         = LatexProcessor.quote(File.dirname (@filepath_base))
+      @name          =                      File.basename(@filepath_base)
     end
 
   private
@@ -52,7 +52,7 @@ private
 
       begin
         run_cmd("cd #{@dir_q} && #{PATH_Q}#{tool} #{opts} #{@name}.tex")
-        check_file("#{@basefilepath}.#{ext}")
+        check_file("#{@filepath_base}.#{ext}")
       rescue
         raise ErrorBadTex
       end
@@ -106,7 +106,7 @@ private
 
     def cleanup
       ['pdf','eps','dvi','log','aux','tmp'].each do |ext|
-        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
+        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@filepath_base}.#{ext}") }
       end
     end
 
@@ -118,7 +118,7 @@ private
         else
           make_png_via_dvi
         end
-        check_file("#{@basefilepath}.png")
+        check_file("#{@filepath_base}.png")
       ensure
         cleanup
       end
@@ -154,32 +154,32 @@ private
 
           if WikiLatexConfig::Svg::WA_MAKE_TMP
             # Create temporary directory for temporary files produced by 'dvisvgm'.
-            FileUtils.mkdir_p("#{@basefilepath}.tmp")
-            opts += " --tmpdir=#{@basefilepath}.tmp"
+            FileUtils.mkdir_p("#{@filepath_base}.tmp")
+            opts += " --tmpdir=#{@filepath_base}.tmp"
           end
         end
 
         run_cmd("cd #{@dir_q} && #{PATH_Q}dvisvgm #{opts} #{@name}.dvi -o #{@name}.svg.gz")
-        check_file("#{@basefilepath}.svg.gz")
+        check_file("#{@filepath_base}.svg.gz")
       ensure
         cleanup
       end
     end
 
-    def self.make_png(basefilepath)
-      LatexProcessor.new(basefilepath).make_png()
+    def self.make_png(filepath_base)
+      LatexProcessor.new(filepath_base).make_png()
     end
 
-    def self.make_svgz(basefilepath)
-      LatexProcessor.new(basefilepath).make_svgz()
+    def self.make_svgz(filepath_base)
+      LatexProcessor.new(filepath_base).make_svgz()
     end
   end
 
   def make_from_tex(ext, &block)
     image_id       = params[:image_id]
-    basefilepath   = File.join(WikiLatexHelper::DIR, image_id)
-    image_filepath = "#{basefilepath}.#{ext}"
-    tex_filepath   = "#{basefilepath}.tex"
+    filepath_base   = File.join(WikiLatexHelper::DIR, image_id)
+    image_filepath = "#{filepath_base}.#{ext}"
+    tex_filepath   = "#{filepath_base}.tex"
 
     return image_filepath if File.exists?(image_filepath)
 
@@ -190,16 +190,16 @@ private
       raise ErrorNotFound if !File.exists?(tex_filepath)
     end
 
-    WikiLatexHelper::lock("#{basefilepath}.lock") do
+    WikiLatexHelper::lock("#{filepath_base}.lock") do
       # Check again under lock.
       return image_filepath if File.exists?(image_filepath)
 
       if latex
-        WikiLatexHelper::make_tex(basefilepath, latex.preamble, latex.source)
+        WikiLatexHelper::make_tex(filepath_base, latex.preamble, latex.source)
       end
 
       begin
-        block.call(basefilepath)
+        block.call(filepath_base)
       rescue
         # Remove possiblly buggy tex.
         WikiLatexHelper::suppress { WikiLatexHelper::rm_rf(tex_filepath) }
@@ -211,14 +211,14 @@ private
   end
 
   def make_png
-    return make_from_tex("png") do |basefilepath|
-      LatexProcessor.make_png(basefilepath)
+    return make_from_tex("png") do |filepath_base|
+      LatexProcessor.make_png(filepath_base)
     end
   end
 
   def make_svgz
-    return make_from_tex("svg.gz") do |basefilepath|
-      LatexProcessor.make_svgz(basefilepath)
+    return make_from_tex("svg.gz") do |filepath_base|
+      LatexProcessor.make_svgz(filepath_base)
     end
   end
 
