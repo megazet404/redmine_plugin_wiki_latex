@@ -178,21 +178,21 @@ private
   def make_from_tex(ext, &block)
     image_id       = params[:image_id]
     filepath_base   = File.join(WikiLatexHelper::DIR, image_id)
-    image_filepath = "#{filepath_base}.#{ext}"
-    tex_filepath   = "#{filepath_base}.tex"
+    filepath_image = "#{filepath_base}.#{ext}"
+    filepath_tex   = "#{filepath_base}.tex"
 
-    return image_filepath if File.exists?(image_filepath)
+    return filepath_image if File.exists?(filepath_image)
 
     if WikiLatexConfig::STORE_LATEX_IN_DB
       latex = WikiLatex.find_by_image_id(image_id)
       raise ErrorNotFound if !latex
     else
-      raise ErrorNotFound if !File.exists?(tex_filepath)
+      raise ErrorNotFound if !File.exists?(filepath_tex)
     end
 
     WikiLatexHelper::lock("#{filepath_base}.lock") do
       # Check again under lock.
-      return image_filepath if File.exists?(image_filepath)
+      return filepath_image if File.exists?(filepath_image)
 
       if latex
         WikiLatexHelper::make_tex(filepath_base, latex.preamble, latex.source)
@@ -202,12 +202,12 @@ private
         block.call(filepath_base)
       rescue
         # Remove possiblly buggy tex.
-        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf(tex_filepath) }
+        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf(filepath_tex) }
         raise
       end
     end
 
-    return image_filepath
+    return filepath_image
   end
 
   def make_png
