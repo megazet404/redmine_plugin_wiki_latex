@@ -20,6 +20,9 @@ class WikiLatexController < ApplicationController
       @dir_q        = LatexProcessor.quote(File.dirname (@basefilepath))
       @name         =                      File.basename(@basefilepath)
 
+      # This code should be in run_latex logically, be we can't move it there
+      # because we must run it before creating locks. Otherwise a separate lock
+      # file will be created on every request to non existent latex content.
       if WikiLatexConfig::STORE_LATEX_IN_DB
         @latex = WikiLatex.find_by_image_id(@name)
         raise ErrorNotFound if !@latex
@@ -127,17 +130,22 @@ class WikiLatexController < ApplicationController
 
       return filepath if File.exists?(filepath)
 
-      begin
-        block.call
-        check_file(filepath)
-      rescue
-        # Remove possiblly buggy tex.
-        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.tex") }
-        raise
-      ensure
-        # Clean up.
-        ['pdf','eps','dvi','log','aux','tmp'].each do |ext|
-          WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
+      WikiLatexHelper::lock("#{@basefilepath}.lock") do
+        # Check again under lock.
+        return filepath if File.exists?(filepath)
+
+        begin
+          block.call
+          check_file(filepath)
+        rescue
+          # Remove possiblly buggy tex.
+          WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.tex") }
+          raise
+        ensure
+          # Clean up.
+          ['pdf','eps','dvi','log','aux','tmp'].each do |ext|
+            WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
+          end
         end
       end
 

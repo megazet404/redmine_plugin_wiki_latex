@@ -16,18 +16,50 @@ module WikiLatexHelper
     end
   end
 
-  def self.make_tex(basefilepath, preamble, source)
+  def self.lock(filepath, &block)
+    begin
+      FileUtils.mkdir_p(File.dirname(filepath))
+      File.open(filepath, 'wb') do |lock|
+        lock.flock(File::LOCK_EX)
+        block.call
+      end
+    ensure
+      # Ignore error if file can't be delete because it is locked by other process.
+      suppress do
+        # Deleting lock seems to be a bad idea. Linux allows to delete file even
+        # if it is locked by other process. If we delete file locked by one process
+        # then other processes won't see this lock and will act as if there is no lock.
+        # Though this problem is not applicable to Windows.
+        #File.unlink(filepath)
+      end
+    end
+  end
+
+  def self.make_tex(basefilepath, preamble, source, locked = false)
     filepath = "#{basefilepath}.tex"
 
-    FileUtils.mkdir_p(File.dirname(filepath))
+    make = -> do
+      return if File.exist?(filepath)
 
-    File.open(filepath, 'wb') do |f|
-      # Should we use absolute path in include?
-      f.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
-      f.print(preamble, "\n") if !preamble.empty?
-      f.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
-      f.print(source  , "\n") if !source.empty?
-      f.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
+      FileUtils.mkdir_p(File.dirname(filepath))
+
+      File.open(filepath, 'wb') do |f|
+        # Should we use absolute path in include?
+        f.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
+        f.print(preamble, "\n") if !preamble.empty?
+        f.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
+        f.print(source  , "\n") if !source.empty?
+        f.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
+      end
+    end
+
+    if locked
+      return if File.exist?(filepath)
+      lock("#{basefilepath}.lock") do
+        make.call
+      end
+    else
+      make.call
     end
   end
 
@@ -114,7 +146,7 @@ module WikiLatexHelper
         if WikiLatexConfig::STORE_LATEX_IN_DB
           WikiLatex.new(:image_id => @image_id, :preamble => @preamble, :source => @source).save
         else
-          WikiLatexHelper::make_tex(File.join(DIR, @image_id), @preamble, @source)
+          WikiLatexHelper::make_tex(File.join(DIR, @image_id), @preamble, @source, true)
         end
       end
     end
