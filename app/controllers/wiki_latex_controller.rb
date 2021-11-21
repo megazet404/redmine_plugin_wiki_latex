@@ -3,6 +3,7 @@ private
   class ErrorNotFound < StandardError; end
   class ErrorBadTex   < StandardError; end
 
+  ################################################################
   class LatexProcessor
     def self.quote(str)
       (str == "" ? "" : '"' + str + '"')
@@ -174,6 +175,7 @@ private
       LatexProcessor.new(path_base).make_svgz()
     end
   end
+  ################################################################
 
   def make_from_tex(image_ext, &block)
     image_id   = params[:image_id]
