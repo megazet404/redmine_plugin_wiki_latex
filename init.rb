@@ -137,7 +137,6 @@ EOF
       WikiLatexHelper::Macro.render_inline(latex_source_code, self)
     end
 
-    # code borrowed from wiki template macro
     desc <<'EOF'
 Include wiki page rendered with latex.
 {{latex_include(WikiName)}}
