@@ -35,16 +35,16 @@ module WikiLatexHelper
     end
   end
 
-  def self.make_tex(basefilepath, preamble, source, locked = false)
-    filepath = "#{basefilepath}.tex"
+  def self.make_tex(image_id, preamble, source, locked = false)
+    basefilepath = File.join(DIR, image_id)
+    filepath  = "#{basefilepath}.tex"
 
     make = -> do
       return if File.exist?(filepath)
 
-      FileUtils.mkdir_p(File.dirname(filepath))
+      FileUtils.mkdir_p(DIR)
 
       File.open(filepath, 'wb') do |f|
-        # Should we use absolute path in include?
         f.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
         f.print(preamble, "\n") if !preamble.empty?
         f.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
@@ -136,7 +136,7 @@ module WikiLatexHelper
             WikiLatex.new(:image_id => @image_id, :preamble => @preamble, :source => @source).save
           end
         else
-          WikiLatexHelper::make_tex(File.join(DIR, @image_id), @preamble, @source, true)
+          WikiLatexHelper::make_tex(@image_id, @preamble, @source, true)
         end
       end
     end

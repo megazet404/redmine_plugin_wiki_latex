@@ -195,7 +195,7 @@ private
       return path_image if File.exists?(path_image)
 
       if latex
-        WikiLatexHelper::make_tex(path_base, latex.preamble, latex.source)
+        WikiLatexHelper::make_tex(image_id, latex.preamble, latex.source)
       end
 
       begin
