@@ -8,10 +8,10 @@ private
       (str == "" ? "" : '"' + str + '"')
     end
 
-    def initialize(filepath_base)
-      @filepath_base = filepath_base
-      @dir_q         = LatexProcessor.quote(File.dirname (@filepath_base))
-      @name          =                      File.basename(@filepath_base)
+    def initialize(path_base)
+      @path_base = path_base
+      @dir_q     = LatexProcessor.quote(File.dirname (@path_base))
+      @name      =                      File.basename(@path_base)
     end
 
   private
@@ -22,8 +22,8 @@ private
       raise "failed to run: #{cmd}" if !success
     end
 
-    def check_file(filepath)
-      raise "file was not created: #{filepath}" if !File.exists?(filepath)
+    def check_file(path)
+      raise "file was not created: #{path}" if !File.exists?(path)
     end
 
     def run_latex(tool, ext)
@@ -52,7 +52,7 @@ private
 
       begin
         run_cmd("cd #{@dir_q} && #{PATH_Q}#{tool} #{opts} #{@name}.tex")
-        check_file("#{@filepath_base}.#{ext}")
+        check_file("#{@path_base}.#{ext}")
       rescue
         raise ErrorBadTex
       end
@@ -106,7 +106,7 @@ private
 
     def cleanup
       ['pdf','eps','dvi','log','aux','tmp'].each do |ext|
-        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@filepath_base}.#{ext}") }
+        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@path_base}.#{ext}") }
       end
     end
 
@@ -118,7 +118,7 @@ private
         else
           make_png_via_dvi
         end
-        check_file("#{@filepath_base}.png")
+        check_file("#{@path_base}.png")
       ensure
         cleanup
       end
@@ -154,102 +154,102 @@ private
 
           if WikiLatexConfig::Svg::WA_MAKE_TMP
             # Create temporary directory for temporary files produced by 'dvisvgm'.
-            FileUtils.mkdir_p("#{@filepath_base}.tmp")
-            opts += " --tmpdir=#{@filepath_base}.tmp"
+            FileUtils.mkdir_p("#{@path_base}.tmp")
+            opts += " --tmpdir=#{@path_base}.tmp"
           end
         end
 
         run_cmd("cd #{@dir_q} && #{PATH_Q}dvisvgm #{opts} #{@name}.dvi -o #{@name}.svg.gz")
-        check_file("#{@filepath_base}.svg.gz")
+        check_file("#{@path_base}.svg.gz")
       ensure
         cleanup
       end
     end
 
-    def self.make_png(filepath_base)
-      LatexProcessor.new(filepath_base).make_png()
+    def self.make_png(path_base)
+      LatexProcessor.new(path_base).make_png()
     end
 
-    def self.make_svgz(filepath_base)
-      LatexProcessor.new(filepath_base).make_svgz()
+    def self.make_svgz(path_base)
+      LatexProcessor.new(path_base).make_svgz()
     end
   end
 
   def make_from_tex(ext, &block)
-    image_id       = params[:image_id]
-    filepath_base   = File.join(WikiLatexHelper::DIR, image_id)
-    filepath_image = "#{filepath_base}.#{ext}"
-    filepath_tex   = "#{filepath_base}.tex"
+    image_id   = params[:image_id]
+    path_base  = File.join(WikiLatexHelper::DIR, image_id)
+    path_image = "#{path_base}.#{ext}"
+    path_tex   = "#{path_base}.tex"
 
-    return filepath_image if File.exists?(filepath_image)
+    return path_image if File.exists?(path_image)
 
     if WikiLatexConfig::STORE_LATEX_IN_DB
       latex = WikiLatex.find_by_image_id(image_id)
       raise ErrorNotFound if !latex
     else
-      raise ErrorNotFound if !File.exists?(filepath_tex)
+      raise ErrorNotFound if !File.exists?(path_tex)
     end
 
-    WikiLatexHelper::lock("#{filepath_base}.lock") do
+    WikiLatexHelper::lock("#{path_base}.lock") do
       # Check again under lock.
-      return filepath_image if File.exists?(filepath_image)
+      return path_image if File.exists?(path_image)
 
       if latex
-        WikiLatexHelper::make_tex(filepath_base, latex.preamble, latex.source)
+        WikiLatexHelper::make_tex(path_base, latex.preamble, latex.source)
       end
 
       begin
-        block.call(filepath_base)
+        block.call(path_base)
       rescue
         # Remove possiblly buggy tex.
-        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf(filepath_tex) }
+        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf(path_tex) }
         raise
       end
     end
 
-    return filepath_image
+    return path_image
   end
 
   def make_png
-    return make_from_tex("png") do |filepath_base|
-      LatexProcessor.make_png(filepath_base)
+    return make_from_tex("png") do |path_base|
+      LatexProcessor.make_png(path_base)
     end
   end
 
   def make_svgz
-    return make_from_tex("svg.gz") do |filepath_base|
-      LatexProcessor.make_svgz(filepath_base)
+    return make_from_tex("svg.gz") do |path_base|
+      LatexProcessor.make_svgz(path_base)
     end
   end
 
-  def send_file(filepath, opts)
+  def send_file(path, opts)
     # We need this function as workaround. If we use standard 'send_file' method, then .gz extension
     # of svg.gz file is leaked to browser via HTTP headers. And when user tries to save file, it is
     # saved as .gz file instead of .svg.
-    data = File.open(filepath, "rb") { |f| f.read }
+    data = File.open(path, "rb") { |f| f.read }
     send_data data, opts
   end
 
-  def send_png(filepath)
-    send_file filepath, :type => 'image/png', :disposition => 'inline'
+  def send_png(path)
+    send_file path, :type => 'image/png', :disposition => 'inline'
   end
 
-  def send_svgz(filepath)
+  def send_svgz(path)
     opts = {:type => 'image/svg+xml', :disposition => 'inline'}
     if WikiLatexConfig::Svg::CLIENT_SIDE_DECOMPRESSION
       response.headers["Content-Encoding"] = "gzip"
-      send_file filepath, opts
+      send_file path, opts
     else
-      data = Zlib::GzipReader.open(filepath) { |f| f.read }
+      data = Zlib::GzipReader.open(path) { |f| f.read }
       send_data data, opts
     end
   end
 
   def render_bad_tex
-    filepath = File.join(Rails.root, 'public', 'plugin_assets', 'wiki_latex', 'images', "error.png")
-    return render_404 if !File.exists?(filepath)
+    path = File.join(Rails.root, 'public', 'plugin_assets', 'wiki_latex', 'images', "error.png")
+    return render_404 if !File.exists?(path)
 
-    send_png filepath
+    send_png path
   end
 
   def handle_error
@@ -265,8 +265,8 @@ private
 public
   def image_png
     begin
-      filepath = make_png
-      send_png filepath
+      path = make_png
+      send_png path
     rescue
       handle_error
     end
@@ -274,8 +274,8 @@ public
 
   def image_svg
     begin
-      filepath = make_svgz
-      send_svgz filepath
+      path = make_svgz
+      send_svgz path
     rescue
       handle_error
     end
