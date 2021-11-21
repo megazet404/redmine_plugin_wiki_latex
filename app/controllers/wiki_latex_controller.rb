@@ -20,8 +20,12 @@ class WikiLatexController < ApplicationController
       @dir_q        = LatexProcessor.quote(File.dirname (@basefilepath))
       @name         =                      File.basename(@basefilepath)
 
-      @latex = WikiLatex.find_by_image_id(@name)
-      raise ErrorNotFound if !@latex
+      if WikiLatexConfig::STORE_LATEX_IN_DB
+        @latex = WikiLatex.find_by_image_id(@name)
+        raise ErrorNotFound if !@latex
+      else
+        raise ErrorNotFound if !File.exists?("#{@basefilepath}.tex")
+      end
     end
 
   private
@@ -37,7 +41,9 @@ class WikiLatexController < ApplicationController
     end
 
     def run_latex(tool, ext)
-      WikiLatexHelper::make_tex(@basefilepath, @latex.preamble, @latex.source)
+      if @latex
+        WikiLatexHelper::make_tex(@basefilepath, @latex.preamble, @latex.source)
+      end
 
       # Compose command line options.
       opts = ""
@@ -124,8 +130,11 @@ class WikiLatexController < ApplicationController
       begin
         block.call
         check_file(filepath)
+      rescue
+        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.tex") }
+        raise
       ensure
-        ['tex','pdf','eps','dvi','log','aux','tmp'].each do |ext|
+        ['pdf','eps','dvi','log','aux','tmp'].each do |ext|
           WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
         end
       end

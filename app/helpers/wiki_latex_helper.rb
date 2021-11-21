@@ -82,11 +82,13 @@ module WikiLatexHelper
 
       # Try fetch source from DB.
       begin
-        latex = WikiLatex.find_by_image_id(@image_id)
-        if (latex)
-          @preamble = latex.preamble
-          @source   = latex.source
-          return
+        if WikiLatexConfig::STORE_LATEX_IN_DB
+          latex = WikiLatex.find_by_image_id(@image_id)
+          if (latex)
+            @preamble = latex.preamble
+            @source   = latex.source
+            return
+          end
         end
       end
 
@@ -104,7 +106,11 @@ module WikiLatexHelper
 
       # Save source.
       begin
-        WikiLatex.new(:image_id => @image_id, :preamble => @preamble, :source => @source).save
+        if WikiLatexConfig::STORE_LATEX_IN_DB
+          WikiLatex.new(:image_id => @image_id, :preamble => @preamble, :source => @source).save
+        else
+          WikiLatexHelper::make_tex(File.join(DIR, @image_id), @preamble, @source)
+        end
       end
     end
 
