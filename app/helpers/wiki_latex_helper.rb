@@ -117,18 +117,6 @@ module WikiLatexHelper
         @image_id.encode!()
       end
 
-      # Try fetch source from DB.
-      begin
-        if WikiLatexConfig::STORE_LATEX_IN_DB
-          latex = WikiLatex.find_by_image_id(@image_id)
-          if (latex)
-            @preamble = latex.preamble
-            @source   = latex.source
-            return
-          end
-        end
-      end
-
       # Split full_source.
       begin
         if full_source.include?  ('|||||')
@@ -144,7 +132,9 @@ module WikiLatexHelper
       # Save source.
       begin
         if WikiLatexConfig::STORE_LATEX_IN_DB
-          WikiLatex.new(:image_id => @image_id, :preamble => @preamble, :source => @source).save
+          if !WikiLatex.find_by_image_id(@image_id)
+            WikiLatex.new(:image_id => @image_id, :preamble => @preamble, :source => @source).save
+          end
         else
           WikiLatexHelper::make_tex(File.join(DIR, @image_id), @preamble, @source, true)
         end
