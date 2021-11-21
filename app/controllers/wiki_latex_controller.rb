@@ -1,8 +1,8 @@
 class WikiLatexController < ApplicationController
-  class LatexProcessor
-    class ErrorNotFound < StandardError; end
-    class ErrorBadTex   < StandardError; end
+  class ErrorNotFound < StandardError; end
+  class ErrorBadTex   < StandardError; end
 
+  class LatexProcessor
     def self.make_png(basefilepath)
       LatexProcessor.new(basefilepath).make_png()
     end
@@ -19,16 +19,6 @@ class WikiLatexController < ApplicationController
       @basefilepath = basefilepath
       @dir_q        = LatexProcessor.quote(File.dirname (@basefilepath))
       @name         =                      File.basename(@basefilepath)
-
-      # This code should be in run_latex logically, be we can't move it there
-      # because we must run it before creating locks. Otherwise a separate lock
-      # file will be created on every request to non existent latex content.
-      if WikiLatexConfig::STORE_LATEX_IN_DB
-        @latex = WikiLatex.find_by_image_id(@name)
-        raise ErrorNotFound if !@latex
-      else
-        raise ErrorNotFound if !File.exists?("#{@basefilepath}.tex")
-      end
     end
 
   private
@@ -44,10 +34,6 @@ class WikiLatexController < ApplicationController
     end
 
     def run_latex(tool, ext)
-      if @latex
-        WikiLatexHelper::make_tex(@basefilepath, @latex.preamble, @latex.source)
-      end
-
       # Compose command line options.
       opts = ""
       begin
@@ -127,29 +113,15 @@ class WikiLatexController < ApplicationController
 
     def make_from_tex(ext, &block)
       filepath = "#{@basefilepath}.#{ext}"
-
-      return filepath if File.exists?(filepath)
-
-      WikiLatexHelper::lock("#{@basefilepath}.lock") do
-        # Check again under lock.
-        return filepath if File.exists?(filepath)
-
-        begin
-          block.call
-          check_file(filepath)
-        rescue
-          # Remove possiblly buggy tex.
-          WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.tex") }
-          raise
-        ensure
-          # Clean up.
-          ['pdf','eps','dvi','log','aux','tmp'].each do |ext|
-            WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
-          end
+      begin
+        block.call
+        check_file(filepath)
+      ensure
+        # Clean up.
+        ['pdf','eps','dvi','log','aux','tmp'].each do |ext|
+          WikiLatexHelper::suppress { WikiLatexHelper::rm_rf("#{@basefilepath}.#{ext}") }
         end
       end
-
-      return filepath
     end
 
   public
@@ -205,7 +177,9 @@ class WikiLatexController < ApplicationController
 
   def image_png
     begin
-      filepath = LatexProcessor.make_png(File.join(WikiLatexHelper::DIR, params[:image_id]))
+      filepath = make_from_tex("png") do |basefilepath|
+        LatexProcessor.make_png(basefilepath)
+      end
       send_png(filepath)
     rescue
       handle_error
@@ -214,7 +188,9 @@ class WikiLatexController < ApplicationController
 
   def image_svg
     begin
-      filepath = LatexProcessor.make_svgz(File.join(WikiLatexHelper::DIR, params[:image_id]))
+      filepath = make_from_tex("svg.gz") do |basefilepath|
+        LatexProcessor.make_svgz(basefilepath)
+      end
       send_svgz(filepath)
     rescue
       handle_error
@@ -255,10 +231,45 @@ private
   def handle_error
     begin
       raise
-    rescue LatexProcessor::ErrorNotFound
+    rescue ErrorNotFound
       render_404
-    rescue LatexProcessor::ErrorBadTex
+    rescue ErrorBadTex
       render_bad_tex
     end
+  end
+
+  def make_from_tex(ext, &block)
+    image_id       = params[:image_id]
+    basefilepath   = File.join(WikiLatexHelper::DIR, image_id)
+    image_filepath = "#{basefilepath}.#{ext}"
+    tex_filepath   = "#{basefilepath}.tex"
+
+    return image_filepath if File.exists?(image_filepath)
+
+    if WikiLatexConfig::STORE_LATEX_IN_DB
+      latex = WikiLatex.find_by_image_id(image_id)
+      raise ErrorNotFound if !latex
+    else
+      raise ErrorNotFound if !File.exists?(tex_filepath)
+    end
+
+    WikiLatexHelper::lock("#{basefilepath}.lock") do
+      # Check again under lock.
+      return image_filepath if File.exists?(image_filepath)
+
+      if latex
+        WikiLatexHelper::make_tex(basefilepath, latex.preamble, latex.source)
+      end
+
+      begin
+        block.call(basefilepath)
+      rescue
+        # Remove possiblly buggy tex.
+        WikiLatexHelper::suppress { WikiLatexHelper::rm_rf(tex_filepath) }
+        raise
+      end
+    end
+
+    return image_filepath
   end
 end
