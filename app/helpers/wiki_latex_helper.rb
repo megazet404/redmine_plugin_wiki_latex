@@ -16,6 +16,20 @@ module WikiLatexHelper
     end
   end
 
+  def self.make_tex(basefilepath, preamble, source)
+    filepath = "#{basefilepath}.tex"
+
+    FileUtils.mkdir_p(File.dirname(filepath))
+
+    File.open(filepath, 'wb') do |f|
+      f.print('\input{../../plugins/wiki_latex/assets/latex/header.tex}', "\n")
+      f.print(preamble, "\n") if !preamble.empty?
+      f.print('\input{../../plugins/wiki_latex/assets/latex/header2.tex}', "\n")
+      f.print(source  , "\n") if !source.empty?
+      f.print('\input{../../plugins/wiki_latex/assets/latex/footer.tex}', "\n")
+    end
+  end
+
   class Macro
     def self.render_inline(source, view)
       Macro.new(:source => source).render_inline(view)
