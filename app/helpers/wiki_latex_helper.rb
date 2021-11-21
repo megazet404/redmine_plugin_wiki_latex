@@ -26,7 +26,11 @@ module WikiLatexHelper
     ensure
       # Ignore error if file can't be delete because it is locked by other process.
       suppress do
-        File.unlink(filepath)
+        # Deleting lock seems to be a bad idea. Linux allows to delete file even
+        # if it is locked by other process. If we delete file locked by one process
+        # then other processes won't see this lock and will act as if there is no lock.
+        # Though this problem is not applicable to Windows.
+        #File.unlink(filepath)
       end
     end
   end
