@@ -10,11 +10,10 @@ The plugin uses LaTeX tools directly, so you have to install some LaTeX distribu
 
 ## Prerequisites
 
-Requieres folowing debian packages
-
-	* dvipng
-	* texlive-recomended
-	* preview-latex-style
+Requires the folowing debian packages:
+* dvipng
+* texlive-recomended
+* preview-latex-style
 
 ## Installation
 
