@@ -1,9 +1,10 @@
 # Redmine wiki latex plugin
 
-Redmine Wiki Latex-macro plugin will allow Redmines wiki to render
-image from latex code.
+This is _LaTeX_ plugin for _Redmine_ that allows to display rendered LaTeX formulas in Redmine's _Wiki_.
 
-Modified version to work with redmine 3.x
+This edition of _Redmine wiki latex_ plugin works on _Linux_ and _Windows_ (it probably works on other platforms too). It also supports rendering to _SVG_. It is compatible with _Redmine 4.x_ and some older versions.
+
+The plugin uses LaTeX tools directly, so you have to install some LaTeX distribution to make the plugin work. But its advantage is that it doesn't send your LaTeX code to 3rd party servers as some other LaTeX plugins for Redmine do.
 
 # Installation and usage
 
