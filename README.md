@@ -17,12 +17,12 @@ Requires the folowing debian packages:
 
 ## Installation
 
-1. Name the folder `wiki_latex` not `wiki_latex_plugin` and place it in the /plugins directory
-2. Create the database tables using `rake redmine:plugins:migrate RAILS_ENV=production`
-3. Restart redmine
-4. The plugin should appear in the administartion panel
+1. Name the folder `wiki_latex`, not `wiki_latex_plugin`, and place it in the `plugins` directory of Redmine.
+2. Create the database tables using `rake redmine:plugins:migrate RAILS_ENV=production`.
+3. Restart Redmine.
+4. The plugin should appear in the administration panel.
 
-For more insturctions: http://www.redmine.org/projects/redmine/wiki/Plugins
+For more instructions visit http://www.redmine.org/projects/redmine/wiki/Plugins.
 
 ## Usage
 
