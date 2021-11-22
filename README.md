@@ -1,7 +1,13 @@
+# Redmine wiki latex plugin
+
 Redmine Wiki Latex-macro plugin will allow Redmines wiki to render
 image from latex code.
 
 Modified version to work with redmine 3.x
+
+# Installation and usage
+
+## Prerequisites
 
 Requieres folowing debian packages
 
@@ -9,7 +15,7 @@ Requieres folowing debian packages
 	* texlive-recomended
 	* preview-latex-style
 
-INSTALLATION
+## Installation
 
 1. Name the folder `wiki_latex` not `wiki_latex_plugin` and place it in the /plugins directory
 2. Create the database tables using `rake redmine:plugins:migrate RAILS_ENV=production`
@@ -18,7 +24,8 @@ INSTALLATION
 
 For more insturctions: http://www.redmine.org/projects/redmine/wiki/Plugins
 
-USAGE:
+## Usage
+
 1. Latex can be inserted into a Wiki via:
 
 {{latex($a=x_2$}}
@@ -27,6 +34,8 @@ USAGE:
 
 {{latex(\usepackage{tikz}|||||\begin{tikzpicture}\draw [red] (0,0) rectangle (1,1);\end{tikzpicture})}}
 
+# Update history
+
 UPDATED by Christopher Wilson to work in Redmine 3.0.x.
 Based on code: 
 Updated by Paul Morelle (https://github.com/madprog)
@@ -34,6 +43,8 @@ Updated by Herman Fries (https://github.com/baracoder)
 Original Code: 
 Copyright (C) 2009 Nils Israel <info@nils-israel.net>
 Based on wiki_graphviz_plugin by tckz<at.tckz@gmail.com>
+
+# License
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
