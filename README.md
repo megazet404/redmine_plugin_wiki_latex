@@ -10,10 +10,16 @@ The plugin uses LaTeX tools directly, so you have to install some LaTeX distribu
 
 ## Prerequisites
 
+### Linux
+
 Requires the folowing debian packages:
 * dvipng
 * texlive-recomended
 * preview-latex-style
+
+### Windows
+
+Install _MiKTeX_.
 
 ## Installation
 
