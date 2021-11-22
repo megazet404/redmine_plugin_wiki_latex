@@ -26,13 +26,24 @@ For more instructions visit http://www.redmine.org/projects/redmine/wiki/Plugins
 
 ## Usage
 
-1. Latex can be inserted into a Wiki via:
-
-{{latex($a=x_2$}}
-
+1. LaTeX can be inserted into a Wiki via Redmine's wiki macro:
+    ```tex
+    {{latex( $a=x_2$ )}}
+    ```
 2. Preambles can be specified if necessary with:
-
-{{latex(\usepackage{tikz}|||||\begin{tikzpicture}\draw [red] (0,0) rectangle (1,1);\end{tikzpicture})}}
+    ```tex
+    {{latex( \usepackage{tikz}|||||\begin{tikzpicture}\draw [red] (0,0) rectangle (1,1);\end{tikzpicture} )}}
+    ```
+3. Multiline syntax can be used:
+    ```tex
+    {{latex
+      \usepackage{tikz}
+    |||||
+      \begin{tikzpicture}
+        \draw [red] (0,0) rectangle (1,1);
+      \end{tikzpicture}
+    }}
+    ```
 
 # Update history
 
