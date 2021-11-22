@@ -30,6 +30,10 @@ Install _MiKTeX_.
 
 For more instructions visit http://www.redmine.org/projects/redmine/wiki/Plugins.
 
+### Problems
+
+If your version of Rails is too old then before creating database tables you have to edit files in [_db/migrate/_](db/migrate/) directory. Change `ActiveRecord::Migration[4.2]` to `ActiveRecord::Migration`.
+
 ## Usage
 
 1. LaTeX can be inserted into a Wiki via Redmine's wiki macro:
