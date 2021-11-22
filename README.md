@@ -1,14 +1,13 @@
 Redmine Wiki Latex-macro plugin will allow Redmines wiki to render
 image from latex code.
 
+Modified version to work with redmine 3.x
+
 Requieres folowing debian packages
 
 	* dvipng
 	* texlive-recomended
 	* preview-latex-style
-
-Modified version to work with redmine 3.x
-
 
 INSTALLATION
 
