@@ -47,13 +47,21 @@ For more instructions visit http://www.redmine.org/projects/redmine/wiki/Plugins
 
 # Update history
 
-UPDATED by Christopher Wilson to work in Redmine 3.0.x.
-Based on code: 
-Updated by Paul Morelle (https://github.com/madprog)
-Updated by Herman Fries (https://github.com/baracoder)
-Original Code: 
-Copyright (C) 2009 Nils Israel <info@nils-israel.net>
-Based on wiki_graphviz_plugin by tckz<at.tckz@gmail.com>
+* Updated by _megazet404_ (https://github.com/megazet404):
+  * Made it work with Redmine 4.x.
+  * Made it work on Windows.
+  * Added SVG support.
+  * Added support to work without database.
+* Updated by _Christopher Wilson_ (https://github.com/wilsoc5):
+  * Made it work with Redmine 3.x.
+  * Added preamble support.
+* Updated by _Paul Morelle_ (https://github.com/madprog):
+  * Added support for graphics with tikz & pgfplots.
+  * Added support for new lines in latex macro.
+* Updated by _Herman Fries_ (https://github.com/baracoder):
+  * Made it work with Redmine 2.x.
+* Original Code by _Nils Israel_ (https://github.com/nisrael):
+* Based on _wiki_graphviz_plugin_ by _tckz_ (<at.tckz@gmail.com>).
 
 # License
 
