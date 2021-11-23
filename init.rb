@@ -23,7 +23,7 @@ module WikiLatexConfig
   # If this option is enabled, the data base entries containing the LaTeX sources
   # are removed at Redmine startup. If STORE_LATEX_IN_DB is enabled, the entries
   # are regenerated when the pages with the LaTeX macros are requested.
-  CLEAN_DB_ON_START    = false
+  CLEAN_DB_ON_START    = true
 
   # If this option is enabled, then all 'latex'/'pdflatex' output messages are
   # suppressed.
@@ -32,11 +32,11 @@ module WikiLatexConfig
   # If this option is enabled, the '--quiet' option is added to 'latex'/'pdflatex'.
   # Not all TeX distributions support it. Adding '--quiet' suppress all output,
   # except errors.
-  LATEX_QUIET          = false
+  LATEX_QUIET          = true
 
   # Use this option to make rendered LaTeX images and all content on them bigger
   # or smaller.
-  ZOOM_FACTOR          = 1.0
+  ZOOM_FACTOR          = 1.25
 
   # PNG options.
   module Png
