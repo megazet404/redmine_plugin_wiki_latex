@@ -36,10 +36,10 @@ If your version of Rails is too old then before creating database tables you hav
 
 ## Configuration
 
-Configuration options are available in the [_init.rb_](init.rb) file.
-You can customize LaTeX options in the [_assets/latex/_](assets/latex/) directory.
-You can customize CSS in the [_assets/stylesheets/wiki_latex.css_](assets/stylesheets/wiki_latex.css) file.
-You can switch back to PNG by editing [_macro_inline.html.erb_](app/views/wiki_latex/macro_inline.html.erb) and [_macro_block.html.erb_](app/views/wiki_latex/macro_block.html.erb) templates in the [_app/views/wiki_latex/_](app/views/wiki_latex/) directory (change `image_svg` to `image_png`).
+* Configuration options are available in the [_init.rb_](init.rb) file.
+* You can customize LaTeX options in the [_assets/latex/_](assets/latex/) directory.
+* You can customize CSS in the [_assets/stylesheets/wiki_latex.css_](assets/stylesheets/wiki_latex.css) file.
+* You can switch back to PNG by editing [_macro_inline.html.erb_](app/views/wiki_latex/macro_inline.html.erb) and [_macro_block.html.erb_](app/views/wiki_latex/macro_block.html.erb) templates in the [_app/views/wiki_latex/_](app/views/wiki_latex/) directory (change `image_svg` to `image_png`).
 
 ## Usage
 
