@@ -80,7 +80,9 @@ You can switch back to PNG by editing [_macro_inline.html.erb_](app/views/wiki_l
 * Original Code by _Nils Israel_ (https://github.com/nisrael):
 * Based on _wiki_graphviz_plugin_ by _tckz_ (<at.tckz@gmail.com>).
 
-# License
+# License and copyright
+
+## License
 
 _GPL version 2 or later_
 
@@ -97,3 +99,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+## Copyright
+
+Copyright (C) Nils Israel <info@nils-israel.net> and contributors.
