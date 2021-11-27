@@ -150,7 +150,11 @@ EOF
 end
 
 if WikiLatexConfig::CLEAN_DB_ON_START
-  WikiLatexHelper::clear_db
+  begin
+    WikiLatexHelper::clear_db
+  rescue => e
+    puts "Warning (wiki_latex): cannot clear DB (#{e.message})."
+  end
 end
 
 if WikiLatexConfig::CLEAN_FILES_ON_START
