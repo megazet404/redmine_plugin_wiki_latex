@@ -123,7 +123,7 @@ Redmine::Plugin.register :wiki_latex do
   author      'Nils Israel & Herman Fries & Paul Morelle & Christopher Wilson & megazet404'
   description 'Render images in Wiki from LaTeX expressions'
   url         'https://github.com/megazet404/redmine_plugin_wiki_latex' if respond_to?(:url)
-  version     '0.1.0'
+  version     '1.0.0'
 
   Redmine::WikiFormatting::Macros.register do
     desc <<'EOF'
