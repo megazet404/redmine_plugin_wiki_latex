@@ -98,7 +98,7 @@ module WikiLatexHelper
         full_source.gsub!(/<\/?div>/,"")
 
         # Do we really need this processing??????
-        full_source.gsub!('\\\\','\\')
+        #full_source.gsub!('\\\\','\\')
       end
 
       # Split full_source.
